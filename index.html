@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Shutter Prediction DApp (Vanilla JS)</title>
+  </head>
+  <body>
+    <h1>Shutter Prediction DApp (Vanilla JS)</h1>
+
+    <!-- A) Connect Wallet -->
+    <div>
+      <strong>Status:</strong> <span id="status">N/A</span>
+    </div>
+    <hr />
+    <h2>A) Connect Wallet</h2>
+    <button id="connect-wallet-btn">Connect Wallet</button>
+
+    <hr />
+    <!-- B) Register Shutter Identity -->
+    <h2>1) Register Shutter Identity</h2>
+    <label>
+      Decryption Timestamp (Unix):
+      <input type="number" id="decryptionTimestamp" />
+    </label>
+    <br />
+    <label>
+      Identity Prefix (32 bytes hex):
+      <input type="text" id="identityPrefix" value="0x79bc..." />
+    </label>
+    <br />
+    <button id="register-identity-btn">Register Identity</button>
+
+    <hr />
+    <!-- C) Fetch Encryption Data -->
+    <h2>2) Fetch Encryption Data</h2>
+    <button id="fetch-encryption-data-btn">Get Data</button>
+
+    <hr />
+    <!-- D) Commit Prediction -->
+    <h2>3) Commit Prediction</h2>
+    <label>
+      Your Prediction:
+      <input type="text" id="predictionText" placeholder="e.g. BTC = $50k" />
+    </label>
+    <button id="commit-btn">Encrypt & Commit</button>
+    <p><strong>Ciphertext:</strong> <span id="ciphertextOutput">N/A</span></p>
+    <p><strong>Prediction ID:</strong> <span id="predictionIdOutput">N/A</span></p>
+    <p><strong>Decryption Time:</strong> <span id="decryptionTimeOutput">N/A</span></p>
+    <p><strong>Countdown:</strong> <span id="countdownOutput">N/A</span></p>
+    
+    
+    <hr />
+    <!-- E) Reveal Prediction -->
+    <h2>4) Reveal</h2>
+    <label>
+      Prediction ID:
+      <input type="number" id="predictionId" />
+    </label>
+    <button id="reveal-btn">Reveal</button>
+    <p><strong>Decrypted Text:</strong> <span id="decryptedOutput">N/A</span></p>
+
+    <hr />
+
+    <!-- BLST runtime (wasm + JS) -->
+    <script src="./blst.js"></script>
+
+    <!-- main.js ensures BLST is ready and sets window.shutter -->
+    <script type="module" src="./main.js"></script>
+
+    <!-- Our application logic -->
+    <script type="module" src="./app.js"></script>
+
+    <!-- Prefill the decryption timestamp 30 seconds from now -->
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const decryptionTimestampInput = document.getElementById("decryptionTimestamp");
+        const thirtySecondsFromNow = Math.floor(Date.now() / 1000) + 30;
+        decryptionTimestampInput.value = thirtySecondsFromNow;
+
+        // Start setting up all listeners and UI behaviors.
+        document.getElementById("connect-wallet-btn").addEventListener("click", connectWallet);
+        document.getElementById("register-identity-btn").addEventListener("click", registerIdentity);
+        document.getElementById("fetch-encryption-data-btn").addEventListener("click", fetchEncryptionData);
+        document.getElementById("commit-btn").addEventListener("click", commitPrediction);
+        document.getElementById("reveal-btn").addEventListener("click", revealPrediction);
+
+        setStatus("Ready. Please connect wallet.");
+      });
+    </script>
+  </body>
+</html>
