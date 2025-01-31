@@ -10,6 +10,11 @@
 				"internalType": "uint256",
 				"name": "_revealTime",
 				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_shutterIdentity",
+				"type": "string"
 			}
 		],
 		"name": "commitPrediction",
@@ -43,6 +48,12 @@
 				"internalType": "uint256",
 				"name": "revealTime",
 				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "shutterIdentity",
+				"type": "string"
 			}
 		],
 		"name": "PredictionCommitted",
@@ -125,6 +136,11 @@
 				"internalType": "bool",
 				"name": "revealedFlag",
 				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "shutterIdentity",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
@@ -177,6 +193,11 @@
 				"internalType": "bool",
 				"name": "isRevealed",
 				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "shutterIdentity",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
