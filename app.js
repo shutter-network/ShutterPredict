@@ -11,13 +11,214 @@ let contract = null;
 let shutterIdentity = null;
 let encryptionData = null;
 
-const CONTRACT_ADDRESS = "0x922afA8BE7f60bfD331B4854A594f2402424D02a";
+const CONTRACT_ADDRESS = "0xd4194b8D3cB3CE825690a9Fb167a9e6E145a9d58";
 const CONTRACT_ABI = [
-    "function commitPrediction(bytes _encryptedData, uint256 _revealTime) external",
-    "function revealPrediction(uint256 _id, string _plaintext) external",
-    "function predictionCount() view returns (uint256)",
-    "function predictions(uint256) view returns (address, bytes, uint256, string, bool)"
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "_encryptedData",
+                "type": "bytes"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_revealTime",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "_shutterIdentity",
+                "type": "string"
+            }
+        ],
+        "name": "commitPrediction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "predictor",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "bytes",
+                "name": "encryptedData",
+                "type": "bytes"
+            },
+            {
+                "indexed": false,
+                "internalType": "uint256",
+                "name": "revealTime",
+                "type": "uint256"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "shutterIdentity",
+                "type": "string"
+            }
+        ],
+        "name": "PredictionCommitted",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "predictor",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "string",
+                "name": "revealedText",
+                "type": "string"
+            }
+        ],
+        "name": "PredictionRevealed",
+        "type": "event"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "_plaintext",
+                "type": "string"
+            }
+        ],
+        "name": "revealPrediction",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "_id",
+                "type": "uint256"
+            }
+        ],
+        "name": "getPrediction",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "predictor",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "encryptedData",
+                "type": "bytes"
+            },
+            {
+                "internalType": "uint256",
+                "name": "revealTime",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "revealedText",
+                "type": "string"
+            },
+            {
+                "internalType": "bool",
+                "name": "revealedFlag",
+                "type": "bool"
+            },
+            {
+                "internalType": "string",
+                "name": "shutterIdentity",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "predictionCount",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "name": "predictions",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "predictor",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "encryptedCommitment",
+                "type": "bytes"
+            },
+            {
+                "internalType": "uint256",
+                "name": "revealTime",
+                "type": "uint256"
+            },
+            {
+                "internalType": "string",
+                "name": "revealed",
+                "type": "string"
+            },
+            {
+                "internalType": "bool",
+                "name": "isRevealed",
+                "type": "bool"
+            },
+            {
+                "internalType": "string",
+                "name": "shutterIdentity",
+                "type": "string"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
 ];
+
 
 const SHUTTER_API_BASE = "https://shutter.api.staging.shutter.network/api";
 const REGISTRY_ADDRESS = "0x228DefCF37Da29475F0EE2B9E4dfAeDc3b0746bc";
@@ -174,8 +375,11 @@ async function commitPrediction() {
         document.getElementById("ciphertextOutput").textContent = ciphertextHex;
         console.log("Encryption complete. Ciphertext:", ciphertextHex);
 
+        // Fetch the shutter identity
+        const shutterIdentity = await getShutterIdentity();
+
         setStatus("Committing encrypted prediction on-chain...");
-        const tx = await contract.commitPrediction(ciphertextHex, decryptionTimestamp);
+        const tx = await contract.commitPrediction(ciphertextHex, decryptionTimestamp, shutterIdentity);
         console.log("Transaction sent:", tx);
 
         await tx.wait();
@@ -189,7 +393,6 @@ async function commitPrediction() {
         setStatus(`Error committing prediction: ${err.message}`);
     }
 }
-
 
 async function displayPredictionId() {
     try {
@@ -220,32 +423,16 @@ async function revealPrediction() {
             return;
         }
 
-        // Retrieve prediction ID
         const predictionId = Number(document.getElementById("predictionId").value);
         setStatus("Retrieving on-chain prediction data...");
 
-        // Fetch the prediction data
         const predictionData = await contract.predictions(predictionId);
         console.log("Prediction Data:", predictionData);
 
-        const predictor = predictionData[0];
         const encryptedCommitment = predictionData[1];
         const revealTime = predictionData[2];
-        const revealedText = predictionData[3];
         const isRevealed = predictionData[4];
-
-        // Check if prediction exists
-        if (!predictor || predictor === ethers.constants.AddressZero) {
-            setStatus("Prediction does not exist.");
-            return;
-        }
-
-        // Check if prediction has already been revealed
-        if (isRevealed) {
-            setStatus(`Prediction already revealed: "${revealedText}"`);
-            document.getElementById("decryptedOutput").textContent = revealedText;
-            return;
-        }
+        const shutterIdentity = predictionData[5];  // Retrieve Shutter identity
 
         // Check for valid encrypted data
         if (!encryptedCommitment || encryptedCommitment === "0x") {
@@ -253,10 +440,22 @@ async function revealPrediction() {
             return;
         }
 
-        setStatus("Fetching Shutter final decryption key...");
+        // Handle already revealed prediction
+        if (isRevealed) {
+            setStatus(`Prediction already revealed: "${predictionData[3]}"`);
+            document.getElementById("decryptedOutput").textContent = predictionData[3];
+            return;
+        }
+
+        // Display decryption time and start countdown if not expired
+        document.getElementById("decryptionTimeOutput").textContent = formatDecryptionTime(revealTime);
+        startCountdown(revealTime);
+
+        // Fetch Shutter decryption key
+        setStatus("Fetching Shutter decryption key...");
         const keyResp = await axios.get(`${SHUTTER_API_BASE}/get_decryption_key`, {
             params: {
-                identity: shutterIdentity.message.identity,
+                identity: shutterIdentity,
                 registry: REGISTRY_ADDRESS
             }
         });
@@ -274,7 +473,6 @@ async function revealPrediction() {
         document.getElementById("decryptedOutput").textContent = decryptedText;
         setStatus("Revealing prediction on-chain...");
 
-        // Send the reveal transaction
         const tx = await contract.revealPrediction(predictionId, decryptedText);
         console.log("Transaction sent:", tx);
         await tx.wait();
@@ -287,27 +485,14 @@ async function revealPrediction() {
     }
 }
 
-
-
-
-// ======================
-// Utility: Prefill Prediction ID
-// ======================
-async function prefillPredictionId() {
-    try {
-        const predictionIdInput = document.getElementById("predictionId");
-        const predictionIdOutput = document.getElementById("predictionIdOutput");
-
-        const count = await contract.predictionCount();
-        const latestId = count > 0 ? count - 1 : 0;
-
-        predictionIdInput.value = latestId;
-        predictionIdOutput.textContent = latestId;
-    } catch (err) {
-        console.error("Error fetching prediction ID:", err);
-        setStatus("Error retrieving prediction ID");
-    }
+async function getShutterIdentity() {
+    // Get the Shutter identity (e.g., from localStorage, if stored or generated)
+    // For now, we assume it was generated or retrieved earlier in the flow
+    return shutterIdentity ? shutterIdentity.message.identity : "0xDefaultIdentity";  // Use default if not set
 }
+
+
+
 
 
 // ======================

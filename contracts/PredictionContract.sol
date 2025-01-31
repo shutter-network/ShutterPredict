@@ -13,6 +13,7 @@ contract PredictionContract {
         uint256 revealTime;        // Timestamp after which user can reveal
         string revealed;           // Plaintext result (after Shutter key release)
         bool isRevealed;
+        string shutterIdentity;    // Shutter identity associated with the prediction
     }
 
     mapping(uint256 => Prediction) public predictions;
@@ -22,7 +23,8 @@ contract PredictionContract {
         uint256 indexed id,
         address indexed predictor,
         bytes encryptedData,
-        uint256 revealTime
+        uint256 revealTime,
+        string shutterIdentity
     );
     event PredictionRevealed(
         uint256 indexed id,
@@ -34,8 +36,13 @@ contract PredictionContract {
      * @dev Commit an encrypted prediction. Optionally set a specific reveal time.
      * @param _encryptedData The Shutter-encrypted bytes.
      * @param _revealTime The earliest block timestamp the user can reveal (0 if no on-chain time check).
+     * @param _shutterIdentity The Shutter identity of the user making the prediction.
      */
-    function commitPrediction(bytes calldata _encryptedData, uint256 _revealTime)
+    function commitPrediction(
+        bytes calldata _encryptedData, 
+        uint256 _revealTime, 
+        string calldata _shutterIdentity
+    )
         external
     {
         predictions[predictionCount] = Prediction({
@@ -43,14 +50,16 @@ contract PredictionContract {
             encryptedCommitment: _encryptedData,
             revealTime: _revealTime,
             revealed: "",
-            isRevealed: false
+            isRevealed: false,
+            shutterIdentity: _shutterIdentity
         });
 
         emit PredictionCommitted(
             predictionCount,
             msg.sender,
             _encryptedData,
-            _revealTime
+            _revealTime,
+            _shutterIdentity
         );
         predictionCount++;
     }
@@ -68,11 +77,6 @@ contract PredictionContract {
 
         // If you want on-chain gating by time:
         // require(block.timestamp >= p.revealTime, "Reveal time not reached yet");
-
-        // We cannot verify the decryption on-chain, since Shutter ops are off-chain,
-        // so we trust the user to provide correct plaintext. Auditors or off-chain watchers
-        // can do extra checks by re-encrypting `_plaintext` with the Shutter key
-        // and comparing it to `p.encryptedCommitment`.
 
         p.revealed = _plaintext;
         p.isRevealed = true;
@@ -92,7 +96,8 @@ contract PredictionContract {
             bytes memory encryptedData,
             uint256 revealTime,
             string memory revealedText,
-            bool revealedFlag
+            bool revealedFlag,
+            string memory shutterIdentity
         )
     {
         Prediction storage p = predictions[_id];
@@ -101,7 +106,8 @@ contract PredictionContract {
             p.encryptedCommitment,
             p.revealTime,
             p.revealed,
-            p.isRevealed
+            p.isRevealed,
+            p.shutterIdentity
         );
     }
 }
