@@ -223,7 +223,7 @@ async function encryptPrediction() {
   const chosenDate = new Date(dtValue);
   chosenDecryptionTimestamp = Math.floor(chosenDate.getTime() / 1000);
   // Enforce a minimum reveal time of now+600 seconds
-  const minTimestamp = Math.floor(Date.now() / 1000) + 30;
+  const minTimestamp = Math.floor(Date.now() / 1000) + 600;
   if (chosenDecryptionTimestamp < minTimestamp) {
     chosenDecryptionTimestamp = minTimestamp;
   }
@@ -271,6 +271,22 @@ async function commitPrediction() {
     console.error("commitPrediction error:", err);
     setStatus(`Error committing prediction: ${err.message}`);
   }
+}
+
+// ======================
+// New: Tweet Prediction (opens pre-filled tweet)
+// ======================
+function tweetPrediction() {
+  // Ensure necessary data exists
+  if (!encryptedCiphertext || !chosenDecryptionTimestamp) {
+    alert("Please encrypt and commit your prediction before tweeting.");
+    return;
+  }
+  const dateString = new Date(chosenDecryptionTimestamp * 1000).toLocaleString();
+  const infoLink = "https://shutter.network"; // Replace with actual link if desired
+  const tweetText = `I have committed to a prediction for date ${dateString}. Here's the ciphertext: ${encryptedCiphertext}. At that exact time the decryption key for this prediction will be made available, revealing my prediction. More info: ${infoLink}`;
+  const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
+  window.open(tweetUrl, "_blank");
 }
 
 // ======================
@@ -360,5 +376,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   await connectWallet();
   document.getElementById("encrypt-btn").addEventListener("click", encryptPrediction);
   document.getElementById("commit-btn").addEventListener("click", commitPrediction);
+  document.getElementById("tweet-btn").addEventListener("click", tweetPrediction);
   document.getElementById("decrypt-btn").addEventListener("click", decryptPrediction);
 });
