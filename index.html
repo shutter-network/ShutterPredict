@@ -2,89 +2,161 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Shutter Prediction DApp (Vanilla JS)</title>
+    <title>Shutter Prediction DApp</title>
+    <style>
+      /* Reset and base styles */
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      .container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      h1, h2 {
+        font-family: "Arial Black", Arial, sans-serif;
+      }
+      h1 {
+        font-size: 2em;
+        margin: 0;
+      }
+      .status {
+        padding: 10px;
+        background: #eee;
+        border: 1px solid #ccc;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      section {
+        background: #fff;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      section h2 {
+        margin-top: 0;
+        color: #007acc;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin: 12px 0 5px;
+      }
+      input[type="text"],
+      input[type="datetime-local"],
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        display: inline-block;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        padding: 10px 20px;
+        font-size: 1em;
+        border: none;
+        border-radius: 4px;
+        background: #007acc;
+        color: #fff;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #005fa3;
+      }
+      .output {
+        background: #f9f9f9;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-family: monospace;
+        word-break: break-all;
+      }
+      /* Extra spacing for commit fields */
+      .commit-field {
+        margin-bottom: 15px;
+      }
+    </style>
   </head>
   <body>
-    <h1>Shutter Prediction DApp (Vanilla JS)</h1>
+    <div class="container">
+      <header>
+        <h1>Shutter Prediction DApp</h1>
+      </header>
+      <div class="status">
+        <strong>Status:</strong> <span id="status">N/A</span>
+      </div>
 
-    <!-- A) Connect Wallet -->
-    <div>
-      <strong>Status:</strong> <span id="status">N/A</span>
+      <!-- Step 1: ENCRYPT -->
+      <section id="encrypt-section">
+        <h2>Step 1: ENCRYPT</h2>
+        <label for="predictionText">Your Prediction:</label>
+        <input type="text" id="predictionText" placeholder="e.g. BTC = $50k" />
+        <label for="decryptionTimestamp">Reveal Time:</label>
+        <input type="datetime-local" id="decryptionTimestamp" />
+        <button id="encrypt-btn">Encrypt</button>
+        <div>
+          <strong>Ciphertext:</strong>
+          <div class="output" id="ciphertextOutput">N/A</div>
+        </div>
+      </section>
+
+      <!-- Step 2: COMMIT -->
+      <section id="commit-section">
+        <h2>Step 2: COMMIT</h2>
+        <button id="commit-btn">Commit</button>
+        <div class="commit-field">
+          <strong>Prediction ID:</strong>
+          <div class="output" id="predictionIdOutput">N/A</div>
+        </div>
+        <div class="commit-field">
+          <strong>Decryption Time:</strong>
+          <div class="output" id="decryptionTimeOutput">N/A</div>
+        </div>
+        <div class="commit-field">
+          <strong>Countdown:</strong>
+          <div class="output" id="countdownOutput">N/A</div>
+        </div>
+      </section>
+
+      <!-- Step 3: DECRYPT -->
+      <section id="decrypt-section">
+        <h2>Step 3: DECRYPT</h2>
+        <label for="decryptionPredictionId">Prediction ID:</label>
+        <input type="number" id="decryptionPredictionId" placeholder="Enter Prediction ID" />
+        <button id="decrypt-btn">Decrypt</button>
+        <div>
+          <strong>Decrypted Text:</strong>
+          <div class="output" id="decryptedOutput">N/A</div>
+        </div>
+      </section>
     </div>
-    <hr />
-    <h2>A) Connect Wallet</h2>
-    <button id="connect-wallet-btn">Connect Wallet</button>
 
-    <hr />
-    <!-- B) Register Shutter Identity -->
-    <h2>1) Register Shutter Identity</h2>
-    <label>
-      Decryption Timestamp (Unix):
-      <input type="number" id="decryptionTimestamp" />
-    </label>
-    <br />
-    <label>
-      Identity Prefix (32 bytes hex):
-      <input type="text" id="identityPrefix" value="0x79bc..." />
-    </label>
-    <br />
-    <button id="register-identity-btn">Register Identity</button>
-
-    <hr />
-    <!-- C) Fetch Encryption Data -->
-    <h2>2) Fetch Encryption Data</h2>
-    <button id="fetch-encryption-data-btn">Get Data</button>
-
-    <hr />
-    <!-- D) Commit Prediction -->
-    <h2>3) Commit Prediction</h2>
-    <label>
-      Your Prediction:
-      <input type="text" id="predictionText" placeholder="e.g. BTC = $50k" />
-    </label>
-    <button id="commit-btn">Encrypt & Commit</button>
-    <p><strong>Ciphertext:</strong> <span id="ciphertextOutput">N/A</span></p>
-    <p><strong>Prediction ID:</strong> <span id="predictionIdOutput">N/A</span></p>
-    <p><strong>Decryption Time:</strong> <span id="decryptionTimeOutput">N/A</span></p>
-    <p><strong>Countdown:</strong> <span id="countdownOutput">N/A</span></p>
-    
-    
-    <hr />
-    <!-- E) Reveal Prediction -->
-    <h2>4) Reveal</h2>
-    <label>
-      Prediction ID:
-      <input type="number" id="predictionId" />
-    </label>
-    <button id="reveal-btn">Reveal</button>
-    <p><strong>Decrypted Text:</strong> <span id="decryptedOutput">N/A</span></p>
-
-    <hr />
-
-    <!-- BLST runtime (wasm + JS) -->
+    <!-- BLST runtime, then main and app -->
     <script src="./blst.js"></script>
-
-    <!-- main.js ensures BLST is ready and sets window.shutter -->
     <script type="module" src="./main.js"></script>
-
-    <!-- Our application logic -->
     <script type="module" src="./app.js"></script>
-
-    <!-- Prefill the decryption timestamp 30 seconds from now -->
     <script>
+      // Prefill the datetime-local input with current time + 30 seconds
       document.addEventListener("DOMContentLoaded", () => {
-        const decryptionTimestampInput = document.getElementById("decryptionTimestamp");
-        const thirtySecondsFromNow = Math.floor(Date.now() / 1000) + 30;
-        decryptionTimestampInput.value = thirtySecondsFromNow;
-
-        // Start setting up all listeners and UI behaviors.
-        document.getElementById("connect-wallet-btn").addEventListener("click", connectWallet);
-        document.getElementById("register-identity-btn").addEventListener("click", registerIdentity);
-        document.getElementById("fetch-encryption-data-btn").addEventListener("click", fetchEncryptionData);
-        document.getElementById("commit-btn").addEventListener("click", commitPrediction);
-        document.getElementById("reveal-btn").addEventListener("click", revealPrediction);
-
-        setStatus("Ready. Please connect wallet.");
+        const dtInput = document.getElementById("decryptionTimestamp");
+        const now = new Date(Date.now() + 30000);
+        const pad = (n) => n.toString().padStart(2, "0");
+        const formatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        dtInput.value = formatted;
       });
     </script>
   </body>
