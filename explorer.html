@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SHUTTER PREDICT Explorer</title>
     <style>
       body {
@@ -10,33 +11,39 @@
         background-color: #f5f5f5;
         color: #333;
       }
+
       .container {
         max-width: 1000px;
         margin: 40px auto;
         padding: 20px;
         background: #fff;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
+
       header {
         text-align: center;
         margin-bottom: 20px;
       }
+
       h1 {
         font-family: "Arial Black", Arial, sans-serif;
         margin: 0;
         font-size: 3em;
       }
+
       nav {
         text-align: center;
         margin-bottom: 20px;
       }
+
       nav a {
         color: #007acc;
         text-decoration: none;
         font-weight: bold;
         margin: 0 10px;
       }
+
       .refresh-btn {
         display: block;
         margin: 20px auto;
@@ -48,27 +55,36 @@
         color: #fff;
         cursor: pointer;
       }
+
       .refresh-btn:hover {
         background: #005fa3;
       }
+
       table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
+        overflow-x: auto;
+        display: block;
       }
+
       th, td {
         padding: 10px;
         border: 1px solid #ddd;
         text-align: left;
+        word-break: break-word;
       }
+
       th {
         background: #007acc;
         color: #fff;
         font-family: "Arial Black", Arial, sans-serif;
       }
+
       tr:nth-child(even) {
         background: #f9f9f9;
       }
+
       button.details-btn {
         padding: 5px 10px;
         font-size: 0.9em;
@@ -78,8 +94,60 @@
         color: #fff;
         cursor: pointer;
       }
+
       button.details-btn:hover {
         background: #005fa3;
+      }
+
+      /* Responsive styles */
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2em;
+        }
+
+        nav a {
+          display: block;
+          margin: 5px 0;
+        }
+
+        .refresh-btn {
+          width: 100%;
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+        }
+
+        th, td {
+          font-size: 0.9em;
+          padding: 8px;
+        }
+
+        button.details-btn {
+          width: 100%;
+          padding: 8px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 10px;
+        }
+
+        h1 {
+          font-size: 1.5em;
+        }
+
+        th, td {
+          font-size: 0.8em;
+          padding: 6px;
+        }
+
+        button.details-btn {
+          padding: 6px;
+          font-size: 0.8em;
+        }
       }
     </style>
   </head>
