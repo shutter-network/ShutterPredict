@@ -114,7 +114,9 @@ function setStatus(msg) {
 function generateRandomHex(sizeInBytes) {
   const bytes = new Uint8Array(sizeInBytes);
   window.crypto.getRandomValues(bytes);
-  return "0x" + Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
+  return "0x" + Array.from(bytes)
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 function formatDecryptionTime(timestamp) {
@@ -222,7 +224,7 @@ async function encryptPrediction() {
   }
   const chosenDate = new Date(dtValue);
   chosenDecryptionTimestamp = Math.floor(chosenDate.getTime() / 1000);
-  // Enforce a minimum reveal time of now+600 seconds
+  // Enforce a minimum reveal time of now+30 seconds
   const minTimestamp = Math.floor(Date.now() / 1000) + 30;
   if (chosenDecryptionTimestamp < minTimestamp) {
     chosenDecryptionTimestamp = minTimestamp;
@@ -238,6 +240,12 @@ async function encryptPrediction() {
     document.getElementById("ciphertextOutput").textContent = encryptedCiphertext;
     setStatus("Encryption complete!");
     console.log("Encrypted ciphertext:", encryptedCiphertext);
+    // Auto-expand Step 2 after encryption is complete.
+    const commitContent = document.querySelector("#commit-section .content");
+    if (commitContent) {
+      commitContent.style.display = "block";
+      document.querySelector("#commit-section .collapsible .arrow").textContent = "▼";
+    }
   } catch (err) {
     console.error("Encryption error:", err);
     setStatus("Error during encryption");
@@ -267,6 +275,12 @@ async function commitPrediction() {
     await displayPredictionId();
     document.getElementById("decryptionTimeOutput").textContent = formatDecryptionTime(chosenDecryptionTimestamp);
     startCountdown(chosenDecryptionTimestamp);
+    // Auto-expand Step 3 after commit is complete.
+    const decryptContent = document.querySelector("#decrypt-section .content");
+    if (decryptContent) {
+      decryptContent.style.display = "block";
+      document.querySelector("#decrypt-section .collapsible .arrow").textContent = "▼";
+    }
   } catch (err) {
     console.error("commitPrediction error:", err);
     setStatus(`Error committing prediction: ${err.message}`);
@@ -275,16 +289,24 @@ async function commitPrediction() {
 
 // ======================
 // New: Tweet Prediction (opens pre-filled tweet)
+// Now tweets the explorer link instead of the full ciphertext and includes only the first 10 characters.
 // ======================
 function tweetPrediction() {
-  // Ensure necessary data exists
   if (!encryptedCiphertext || !chosenDecryptionTimestamp) {
     alert("Please encrypt and commit your prediction before tweeting.");
     return;
   }
+  const latestId = document.getElementById("predictionIdOutput").textContent;
+  if (!latestId || latestId.trim() === "N/A") {
+    alert("Prediction ID not available.");
+    return;
+  }
   const dateString = new Date(chosenDecryptionTimestamp * 1000).toLocaleString();
-  const infoLink = "https://shutter.network"; // Replace with actual link if desired
-  const tweetText = `I have committed to a prediction for date ${dateString}. Here's the ciphertext: ${encryptedCiphertext}. At that exact time the decryption key for this prediction will be made available, revealing my prediction. More info: ${infoLink}`;
+  // Use your domain or relative URL for the explorer detail page.
+  const explorerLink = `https://yourdomain.com/prediction_detail.html?id=${latestId}`;
+  // Get the first 10 characters of the ciphertext.
+  const shortCiphertext = encryptedCiphertext.substring(0, 10);
+  const tweetText = `I have committed on-chain to a prediction which is threshold encrypted until ${dateString}.\n\nHere are the first 10 characters of the ciphertext: ${shortCiphertext}\n\nHere's a link to view it: ${explorerLink}\n\nMore info: https://shutter.network`;
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
   window.open(tweetUrl, "_blank");
 }
@@ -361,7 +383,10 @@ async function displayPredictionId() {
     const predictionIdOutput = document.getElementById("predictionIdOutput");
     const count = await contract.predictionCount();
     const latestId = count > 0 ? count - 1 : 0;
-    predictionIdOutput.textContent = latestId;
+    // Display the ID and add a link to view details in the explorer.
+    predictionIdOutput.innerHTML = latestId;
+    const explorerLinkDiv = document.getElementById("explorerLink");
+    explorerLinkDiv.innerHTML = `<a href="prediction_detail.html?id=${latestId}">View in Explorer</a>`;
     console.log("Prediction ID retrieved:", latestId);
   } catch (err) {
     console.error("Error fetching prediction ID:", err);

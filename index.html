@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Shutter Prediction DApp</title>
+    <title>SHUTTER PREDICT</title>
     <style>
       /* Reset and base styles */
       body {
@@ -24,7 +24,7 @@
         font-family: "Arial Black", Arial, sans-serif;
       }
       h1 {
-        font-size: 2em;
+        font-size: 4em;
         margin: 0;
       }
       .status {
@@ -46,17 +46,23 @@
       }
       section {
         background: #fff;
-        padding: 20px;
         margin-bottom: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       }
-      section h2 {
-        margin-top: 0;
+      section h2.collapsible {
+        margin: 0;
+        padding: 15px;
         color: #007acc;
         border-bottom: 1px solid #ddd;
-        padding-bottom: 5px;
-        margin-bottom: 15px;
+        cursor: pointer;
+        user-select: none;
+      }
+      section h2.collapsible .arrow {
+        margin-right: 8px;
+      }
+      .content {
+        padding: 20px;
       }
       label {
         display: block;
@@ -99,12 +105,22 @@
       .commit-field {
         margin-bottom: 15px;
       }
+      /* Explorer link button (shown after commit) */
+      #explorerLink {
+        margin-top: 10px;
+        text-align: center;
+      }
+      #explorerLink a {
+        text-decoration: none;
+        color: #007acc;
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <header>
-        <h1>Shutter Prediction DApp</h1>
+        <h1>SHUTTER PREDICT</h1>
       </header>
       <div class="status">
         <strong>Status:</strong> <span id="status">N/A</span>
@@ -115,46 +131,54 @@
 
       <!-- Step 1: ENCRYPT -->
       <section id="encrypt-section">
-        <h2>Step 1: ENCRYPT</h2>
-        <label for="predictionText">Your Prediction:</label>
-        <input type="text" id="predictionText" placeholder="e.g. BTC = $50k" />
-        <label for="decryptionTimestamp">Reveal Time:</label>
-        <input type="datetime-local" id="decryptionTimestamp" />
-        <button id="encrypt-btn">Encrypt</button>
-        <div>
-          <strong>Ciphertext:</strong>
-          <div class="output" id="ciphertextOutput">N/A</div>
+        <h2 class="collapsible"><span class="arrow">▼</span> Step 1: ENCRYPT</h2>
+        <div class="content">
+          <label for="predictionText">Your Prediction:</label>
+          <input type="text" id="predictionText" placeholder="e.g. BTC = $50k" />
+          <label for="decryptionTimestamp">Reveal Time:</label>
+          <input type="datetime-local" id="decryptionTimestamp" />
+          <button id="encrypt-btn">Encrypt</button>
+          <div>
+            <strong>Ciphertext:</strong>
+            <div class="output" id="ciphertextOutput">N/A</div>
+          </div>
         </div>
       </section>
 
       <!-- Step 2: COMMIT -->
       <section id="commit-section">
-        <h2>Step 2: COMMIT</h2>
-        <button id="commit-btn">Commit</button>
-        <button id="tweet-btn">Tweet Prediction</button>
-        <div class="commit-field">
-          <strong>Prediction ID:</strong>
-          <div class="output" id="predictionIdOutput">N/A</div>
-        </div>
-        <div class="commit-field">
-          <strong>Decryption Time:</strong>
-          <div class="output" id="decryptionTimeOutput">N/A</div>
-        </div>
-        <div class="commit-field">
-          <strong>Countdown:</strong>
-          <div class="output" id="countdownOutput">N/A</div>
+        <h2 class="collapsible"><span class="arrow">►</span> Step 2: COMMIT</h2>
+        <div class="content">
+          <button id="commit-btn">Commit</button>
+          <button id="tweet-btn">Tweet Prediction</button>
+          <div class="commit-field">
+            <strong>Prediction ID:</strong>
+            <div class="output" id="predictionIdOutput">N/A</div>
+          </div>
+          <div class="commit-field">
+            <strong>Decryption Time:</strong>
+            <div class="output" id="decryptionTimeOutput">N/A</div>
+          </div>
+          <div class="commit-field">
+            <strong>Countdown:</strong>
+            <div class="output" id="countdownOutput">N/A</div>
+          </div>
+          <!-- Link to view details in explorer -->
+          <div id="explorerLink"></div>
         </div>
       </section>
 
       <!-- Step 3: DECRYPT -->
       <section id="decrypt-section">
-        <h2>Step 3: DECRYPT</h2>
-        <label for="decryptionPredictionId">Prediction ID:</label>
-        <input type="number" id="decryptionPredictionId" placeholder="Enter Prediction ID" />
-        <button id="decrypt-btn">Decrypt</button>
-        <div>
-          <strong>Decrypted Text:</strong>
-          <div class="output" id="decryptedOutput">N/A</div>
+        <h2 class="collapsible"><span class="arrow">►</span> Step 3: DECRYPT</h2>
+        <div class="content">
+          <label for="decryptionPredictionId">Prediction ID:</label>
+          <input type="number" id="decryptionPredictionId" placeholder="Enter Prediction ID" />
+          <button id="decrypt-btn">Decrypt</button>
+          <div>
+            <strong>Decrypted Text:</strong>
+            <div class="output" id="decryptedOutput">N/A</div>
+          </div>
         </div>
       </section>
     </div>
@@ -164,6 +188,30 @@
     <script type="module" src="./main.js"></script>
     <script type="module" src="./app.js"></script>
     <script>
+      // Set initial collapse state and arrow icons:
+      document.addEventListener("DOMContentLoaded", () => {
+        const collapsibles = document.querySelectorAll(".collapsible");
+        collapsibles.forEach(header => {
+          header.addEventListener("click", () => {
+            const content = header.nextElementSibling;
+            if (content.style.display === "none" || content.style.display === "") {
+              content.style.display = "block";
+              header.querySelector(".arrow").textContent = "▼";
+            } else {
+              content.style.display = "none";
+              header.querySelector(".arrow").textContent = "►";
+            }
+          });
+        });
+        // By default, expand Step 1; collapse Steps 2 and 3.
+        document.querySelector("#encrypt-section .content").style.display = "block";
+        document.querySelector("#encrypt-section .collapsible .arrow").textContent = "▼";
+        document.querySelector("#commit-section .content").style.display = "none";
+        document.querySelector("#commit-section .collapsible .arrow").textContent = "►";
+        document.querySelector("#decrypt-section .content").style.display = "none";
+        document.querySelector("#decrypt-section .collapsible .arrow").textContent = "►";
+      });
+
       // Prefill the datetime-local input with current time + 30 seconds
       document.addEventListener("DOMContentLoaded", () => {
         const dtInput = document.getElementById("decryptionTimestamp");
