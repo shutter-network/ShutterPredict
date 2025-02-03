@@ -162,8 +162,8 @@ async function connectWallet() {
           chainId: '0x64', // Gnosis Chain ID in hexadecimal
           chainName: 'Gnosis Chain',
           nativeCurrency: {
-            name: 'xDAI',
-            symbol: 'xDAI',
+            name: 'XDAI',
+            symbol: 'XDAI',
             decimals: 18,
           },
           rpcUrls: ['https://rpc.gnosischain.com'],
