@@ -223,7 +223,7 @@ async function encryptPrediction() {
   const chosenDate = new Date(dtValue);
   chosenDecryptionTimestamp = Math.floor(chosenDate.getTime() / 1000);
   // Enforce a minimum reveal time of now+600 seconds
-  const minTimestamp = Math.floor(Date.now() / 1000) + 600;
+  const minTimestamp = Math.floor(Date.now() / 1000) + 30;
   if (chosenDecryptionTimestamp < minTimestamp) {
     chosenDecryptionTimestamp = minTimestamp;
   }

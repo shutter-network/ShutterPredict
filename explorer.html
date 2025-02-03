@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Prediction Explorer</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      h1 {
+        font-family: "Arial Black", Arial, sans-serif;
+        margin: 0;
+        font-size: 2em;
+      }
+      nav {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      nav a {
+        color: #007acc;
+        text-decoration: none;
+        font-weight: bold;
+        margin: 0 10px;
+      }
+      .refresh-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        font-size: 1em;
+        border: none;
+        border-radius: 4px;
+        background: #007acc;
+        color: #fff;
+        cursor: pointer;
+      }
+      .refresh-btn:hover {
+        background: #005fa3;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th, td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+      }
+      th {
+        background: #007acc;
+        color: #fff;
+        font-family: "Arial Black", Arial, sans-serif;
+      }
+      tr:nth-child(even) {
+        background: #f9f9f9;
+      }
+      button.details-btn {
+        padding: 5px 10px;
+        font-size: 0.9em;
+        border: none;
+        border-radius: 4px;
+        background: #007acc;
+        color: #fff;
+        cursor: pointer;
+      }
+      button.details-btn:hover {
+        background: #005fa3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Prediction Explorer</h1>
+      </header>
+      <nav>
+        <a href="index.html">Go to Prediction App</a>
+      </nav>
+      <button class="refresh-btn" id="refresh-btn">Refresh Predictions</button>
+      <table id="predictions-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Ciphertext</th>
+            <th>Plaintext</th>
+            <th>Reveal Time</th>
+            <th>Status</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Rows will be injected here -->
+        </tbody>
+      </table>
+    </div>
+    <script type="module" src="./explorer.js"></script>
+  </body>
+</html>
