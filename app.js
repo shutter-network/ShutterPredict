@@ -143,27 +143,59 @@ function startCountdown(decryptionTimestamp) {
 // A) Connect Wallet (auto-called on page load)
 // ======================
 async function connectWallet() {
-  try {
-    if (!window.ethereum) {
-      alert("MetaMask not found!");
-      return;
+    try {
+      if (!window.ethereum) {
+        alert("MetaMask not found!");
+        return;
+      }
+  
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+  
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      const network = await provider.getNetwork();
+  
+      console.log("Connected to network:", network);
+  
+      // If the current network is not Gnosis Chain, prompt to switch/add it
+      if (network.chainId !== 100) {
+        const gnosisChainParams = {
+          chainId: '0x64', // Gnosis Chain ID in hexadecimal
+          chainName: 'Gnosis Chain',
+          nativeCurrency: {
+            name: 'xDAI',
+            symbol: 'xDAI',
+            decimals: 18,
+          },
+          rpcUrls: ['https://rpc.gnosischain.com'],
+          blockExplorerUrls: ['https://gnosisscan.io'],
+        };
+  
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [gnosisChainParams],
+          });
+  
+          // Re-fetch the provider and network after switching
+          provider = new ethers.providers.Web3Provider(window.ethereum);
+          signer = provider.getSigner();
+          contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+          setStatus("Wallet connected to Gnosis Chain!");
+        } catch (switchError) {
+          console.error("Failed to switch to Gnosis Chain:", switchError);
+          setStatus("Please connect to the Gnosis Chain network.");
+        }
+      } else {
+        signer = provider.getSigner();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        setStatus("Wallet connected to Gnosis Chain!");
+      }
+    } catch (err) {
+      console.error("connectWallet error:", err);
+      setStatus("Error connecting wallet.");
     }
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-    provider = new ethers.providers.Web3Provider(window.ethereum);
-    const network = await provider.getNetwork();
-    console.log("Connected to network:", network);
-    if (network.chainId !== 100) {
-      alert("Please connect to the Gnosis Chain network!");
-      return;
-    }
-    signer = provider.getSigner();
-    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-    setStatus("Wallet connected!");
-  } catch (err) {
-    console.error("connectWallet error:", err);
-    setStatus("Error connecting wallet");
   }
-}
+  
 
 // ======================
 // B) Register Shutter Identity
