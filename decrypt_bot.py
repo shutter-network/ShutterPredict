@@ -105,40 +105,69 @@ def get_shutter_decryption_key(identity):
     })
 
     if response.status_code == 200:
-        return response.json().get("decryption_key")
+        message = response.json().get("message", {})
+        decryption_key = message.get("decryption_key")
+        if decryption_key:
+            print(f"Decryption key retrieved: {decryption_key}")
+            return decryption_key
+        else:
+            print("No decryption key found in response:", response.json())
     else:
         print("Error fetching decryption key:", response.json())
-        return None
+
+    return None
 
 def decrypt_prediction_with_api(identity, encrypted_commitment):
     """Use the Shutter API to decrypt the commitment."""
+    if isinstance(encrypted_commitment, bytes):
+        encrypted_commitment = "0x" + encrypted_commitment.hex()
+
+    print(f"Formatted Encrypted Commitment: {encrypted_commitment}")
+    print(f"API Request URL: {SHUTTER_API_BASE}/decrypt_commitment?identity={identity}&encryptedCommitment={encrypted_commitment}")
+
     response = requests.get(f"{SHUTTER_API_BASE}/decrypt_commitment", params={
         "identity": identity,
         "encryptedCommitment": encrypted_commitment
     })
 
     if response.status_code == 200:
-        decrypted_hex = response.json().get("decrypted_message")
+        decrypted_hex = response.json().get("message")
         if decrypted_hex:
             decrypted_text = bytes.fromhex(decrypted_hex[2:]).decode("utf-8")
+            print(f"Decrypted Text: {decrypted_text}")
             return decrypted_text
     else:
-        print("Error decrypting commitment:", response.json())
+        print(f"Error decrypting commitment (status {response.status_code}):", response.json())
 
     return None
 
+
 def reveal_prediction_on_chain(prediction_id, plaintext):
     """Submit the decrypted plaintext to the smart contract."""
-    tx = contract.functions.revealPrediction(prediction_id, plaintext).buildTransaction({
+    # Correctly get the transaction count
+    nonce = web3.eth.get_transaction_count(account.address)
+
+    # Build the transaction
+    tx = contract.functions.revealPrediction(prediction_id, plaintext).build_transaction({
         "from": account.address,
-        "nonce": web3.eth.getTransactionCount(account.address),
+        "nonce": nonce,
         "gas": 300000,
-        "gasPrice": web3.toWei("5", "gwei")
+        "gasPrice": Web3.to_wei("5", "gwei"),  # Updated here
     })
 
+    # Sign the transaction
     signed_tx = web3.eth.account.sign_transaction(tx, private_key=account.key)
-    tx_hash = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
+
+    # Send the transaction
+    tx_hash = web3.eth.send_raw_transaction(signed_tx.raw_transaction)
+
+    # Wait for the transaction receipt
+    tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+    print(f"Transaction confirmed! Hash: {tx_hash.hex()}")
+
     return tx_hash.hex()
+
+
 
 def tweet_prediction(prediction_id, plaintext):
     """Post a tweet about the revealed prediction using OAuth1."""
@@ -194,8 +223,6 @@ def run_bot():
                     print(f"Skipping Prediction ID {prediction_id}: Decryption failed.")
                     continue
 
-                print(f"Decrypted Text: {decrypted_text}")
-
                 tx_hash = reveal_prediction_on_chain(prediction_id, decrypted_text)
                 print(f"Prediction {prediction_id} revealed on-chain. TX Hash: {tx_hash}")
 
@@ -208,8 +235,8 @@ def run_bot():
         print("Waiting for the next check...")
         time.sleep(600)  # Check every 10 minutes
 
-def test_latest_prediction():
-    """Test function to fetch and print the latest prediction."""
+def test_decrypt_latest_prediction():
+    """Test function to fetch, decrypt, and display the latest prediction."""
     latest = fetch_latest_prediction()
     if not latest:
         print("No predictions available.")
@@ -217,11 +244,22 @@ def test_latest_prediction():
 
     prediction_id, prediction = latest
     encrypted_commitment = prediction[1]
-    reveal_time = prediction[2]
+    identity = prediction[5]
 
-    print(f"Latest Prediction ID: {prediction_id}")
+    print(f"Testing decryption for Prediction ID: {prediction_id}")
+    print(f"Identity: {identity}")
     print(f"Encrypted Commitment: {encrypted_commitment}")
-    print(f"Reveal Time: {reveal_time}")
+
+    decryption_key = get_shutter_decryption_key(identity)
+    if not decryption_key:
+        print("Decryption key not available.")
+        return
+
+    decrypted_text = decrypt_prediction_with_api(identity, encrypted_commitment)
+    if decrypted_text:
+        print(f"Decrypted Text: {decrypted_text}")
+    else:
+        print("Decryption failed.")
 
 def test_tweet_latest_prediction():
     """Test function to fetch the latest prediction and tweet it."""
@@ -257,6 +295,7 @@ if __name__ == "__main__":
     print("2. Test fetch latest prediction")
     print("3. Test tweet prediction")
     print("4. Generate a new address and save it to config")
+    print("5. Test decrypt latest prediction")
 
     choice = input("Enter your choice: ").strip()
 
@@ -268,5 +307,7 @@ if __name__ == "__main__":
         test_tweet_latest_prediction()
     elif choice == "4":
         generate_new_address()
+    elif choice == "5":
+        test_decrypt_latest_prediction()
     else:
         print("Invalid choice. Exiting.")
