@@ -71,7 +71,7 @@
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "predictor",
+				"name": "revealer",
 				"type": "address"
 			},
 			{

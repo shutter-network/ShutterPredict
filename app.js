@@ -13,93 +13,213 @@ let encryptionData = null;
 let encryptedCiphertext = null;
 let chosenDecryptionTimestamp = null;
 
-const CONTRACT_ADDRESS = "0xd4194b8D3cB3CE825690a9Fb167a9e6E145a9d58";
+const CONTRACT_ADDRESS = "0xdD7f499fae19DC9Ec100Fc4df98e566313f384b2";
 const CONTRACT_ABI = [
-  {
-    "inputs": [
-      { "internalType": "bytes", "name": "_encryptedData", "type": "bytes" },
-      { "internalType": "uint256", "name": "_revealTime", "type": "uint256" },
-      { "internalType": "string", "name": "_shutterIdentity", "type": "string" }
-    ],
-    "name": "commitPrediction",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": true, "internalType": "address", "name": "predictor", "type": "address" },
-      { "indexed": false, "internalType": "bytes", "name": "encryptedData", "type": "bytes" },
-      { "indexed": false, "internalType": "uint256", "name": "revealTime", "type": "uint256" },
-      { "indexed": false, "internalType": "string", "name": "shutterIdentity", "type": "string" }
-    ],
-    "name": "PredictionCommitted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      { "indexed": true, "internalType": "uint256", "name": "id", "type": "uint256" },
-      { "indexed": true, "internalType": "address", "name": "predictor", "type": "address" },
-      { "indexed": false, "internalType": "string", "name": "revealedText", "type": "string" }
-    ],
-    "name": "PredictionRevealed",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "_id", "type": "uint256" },
-      { "internalType": "string", "name": "_plaintext", "type": "string" }
-    ],
-    "name": "revealPrediction",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "_id", "type": "uint256" }
-    ],
-    "name": "getPrediction",
-    "outputs": [
-      { "internalType": "address", "name": "predictor", "type": "address" },
-      { "internalType": "bytes", "name": "encryptedData", "type": "bytes" },
-      { "internalType": "uint256", "name": "revealTime", "type": "uint256" },
-      { "internalType": "string", "name": "revealedText", "type": "string" },
-      { "internalType": "bool", "name": "revealedFlag", "type": "bool" },
-      { "internalType": "string", "name": "shutterIdentity", "type": "string" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "predictionCount",
-    "outputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "name": "predictions",
-    "outputs": [
-      { "internalType": "address", "name": "predictor", "type": "address" },
-      { "internalType": "bytes", "name": "encryptedCommitment", "type": "bytes" },
-      { "internalType": "uint256", "name": "revealTime", "type": "uint256" },
-      { "internalType": "string", "name": "revealed", "type": "string" },
-      { "internalType": "bool", "name": "isRevealed", "type": "bool" },
-      { "internalType": "string", "name": "shutterIdentity", "type": "string" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
+	{
+		"inputs": [
+			{
+				"internalType": "bytes",
+				"name": "_encryptedData",
+				"type": "bytes"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_revealTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_shutterIdentity",
+				"type": "string"
+			}
+		],
+		"name": "commitPrediction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "predictor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "bytes",
+				"name": "encryptedData",
+				"type": "bytes"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "revealTime",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "shutterIdentity",
+				"type": "string"
+			}
+		],
+		"name": "PredictionCommitted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "revealer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "revealedText",
+				"type": "string"
+			}
+		],
+		"name": "PredictionRevealed",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_plaintext",
+				"type": "string"
+			}
+		],
+		"name": "revealPrediction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			}
+		],
+		"name": "getPrediction",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "predictor",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes",
+				"name": "encryptedData",
+				"type": "bytes"
+			},
+			{
+				"internalType": "uint256",
+				"name": "revealTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "revealedText",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "revealedFlag",
+				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "shutterIdentity",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "predictionCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "predictions",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "predictor",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes",
+				"name": "encryptedCommitment",
+				"type": "bytes"
+			},
+			{
+				"internalType": "uint256",
+				"name": "revealTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "revealed",
+				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "isRevealed",
+				"type": "bool"
+			},
+			{
+				"internalType": "string",
+				"name": "shutterIdentity",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
 
 const SHUTTER_API_BASE = "https://shutter.api.staging.shutter.network/api";
 const REGISTRY_ADDRESS = "0x228DefCF37Da29475F0EE2B9E4dfAeDc3b0746bc";

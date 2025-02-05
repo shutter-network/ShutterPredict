@@ -10,7 +10,7 @@ contract PredictionContract {
     struct Prediction {
         address predictor;
         bytes encryptedCommitment; // Shutter-encrypted data
-        uint256 revealTime;        // Timestamp after which user can reveal
+        uint256 revealTime;        // Timestamp after which the prediction can be revealed
         string revealed;           // Plaintext result (after Shutter key release)
         bool isRevealed;
         string shutterIdentity;    // Shutter identity associated with the prediction
@@ -28,14 +28,14 @@ contract PredictionContract {
     );
     event PredictionRevealed(
         uint256 indexed id,
-        address indexed predictor,
+        address indexed revealer,
         string revealedText
     );
 
     /**
      * @dev Commit an encrypted prediction. Optionally set a specific reveal time.
      * @param _encryptedData The Shutter-encrypted bytes.
-     * @param _revealTime The earliest block timestamp the user can reveal (0 if no on-chain time check).
+     * @param _revealTime The earliest block timestamp the prediction can be revealed (0 if no on-chain time check).
      * @param _shutterIdentity The Shutter identity of the user making the prediction.
      */
     function commitPrediction(
@@ -73,7 +73,6 @@ contract PredictionContract {
     function revealPrediction(uint256 _id, string calldata _plaintext) external {
         Prediction storage p = predictions[_id];
         require(!p.isRevealed, "Already revealed");
-        require(p.predictor == msg.sender, "Not your prediction");
 
         // If you want on-chain gating by time:
         // require(block.timestamp >= p.revealTime, "Reveal time not reached yet");

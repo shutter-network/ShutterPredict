@@ -1,0 +1,13 @@
+{
+    "rpc_url": "https://rpc.gnosischain.com",
+    "contract_address": "0xd4194b8D3cB3CE825690a9Fb167a9e6E145a9d58",
+    "shutter_api_base": "https://shutter.api.staging.shutter.network/api",
+    "registry_address": "0x228DefCF37Da29475F0EE2B9E4dfAeDc3b0746bc",
+    "private_key": "YOUR_PRIVATE_KEY",
+    "twitter_auth": {
+        "access_token": "YOUR_ACCESS_TOKEN",
+        "access_token_secret": "YOUR_ACCESS_TOKEN_SECRET",
+        "consumer_key": "YOUR_CONSUMER_KEY",
+        "consumer_secret": "YOUR_CONSUMER_SECRET"
+    }
+}
