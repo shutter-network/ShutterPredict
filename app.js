@@ -6,15 +6,11 @@ import { Buffer } from "https://esm.sh/buffer";
 // Load Configuration
 // ======================
 let publicConfig = null;
-let privateConfig = null;
 let contractABI = null;
 
 async function loadConfig() {
     const publicConfigResponse = await fetch("public_config.json");
     publicConfig = await publicConfigResponse.json();
-
-    const privateConfigResponse = await fetch("private_config.json");
-    privateConfig = await privateConfigResponse.json();
 
     const abiResponse = await fetch("contract_abi.json");
     contractABI = await abiResponse.json();
