@@ -5,12 +5,16 @@ import { Buffer } from "https://esm.sh/buffer";
 // ======================
 // Load Configuration
 // ======================
-let config = null;
+let publicConfig = null;
+let privateConfig = null;
 let contractABI = null;
 
 async function loadConfig() {
-    const configResponse = await fetch("config.json");
-    config = await configResponse.json();
+    const publicConfigResponse = await fetch("public_config.json");
+    publicConfig = await publicConfigResponse.json();
+
+    const privateConfigResponse = await fetch("private_config.json");
+    privateConfig = await privateConfigResponse.json();
 
     const abiResponse = await fetch("contract_abi.json");
     contractABI = await abiResponse.json();
@@ -89,7 +93,7 @@ async function connectWallet() {
                     symbol: 'XDAI',
                     decimals: 18,
                 },
-                rpcUrls: [config.rpc_url],
+                rpcUrls: [publicConfig.rpc_url],
                 blockExplorerUrls: ['https://gnosisscan.io'],
             };
 
@@ -102,7 +106,7 @@ async function connectWallet() {
                 // Re-fetch the provider and network after switching
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
-                contract = new ethers.Contract(config.contract_address, contractABI, signer);
+                contract = new ethers.Contract(publicConfig.contract_address, contractABI, signer);
                 setStatus("Wallet connected to Gnosis Chain!");
             } catch (switchError) {
                 console.error("Failed to switch to Gnosis Chain:", switchError);
@@ -110,7 +114,7 @@ async function connectWallet() {
             }
         } else {
             signer = provider.getSigner();
-            contract = new ethers.Contract(config.contract_address, contractABI, signer);
+            contract = new ethers.Contract(publicConfig.contract_address, contractABI, signer);
             setStatus("Wallet connected to Gnosis Chain!");
         }
     } catch (err) {
@@ -126,10 +130,10 @@ async function registerIdentity(decryptionTimestamp) {
     const identityPrefix = generateRandomHex(32);
     try {
         setStatus("Registering identity on Shutter...");
-        const resp = await axios.post(`${config.shutter_api_base}/register_identity`, {
+        const resp = await axios.post(`${publicConfig.shutter_api_base}/register_identity`, {
             decryptionTimestamp,
             identityPrefix,
-            registry: config.registry_address
+            registry: publicConfig.registry_address
         });
         shutterIdentity = resp.data;
         setStatus("Shutter identity registered successfully!");
@@ -150,7 +154,7 @@ async function fetchEncryptionData() {
     }
     try {
         setStatus("Fetching Shutter encryption data...");
-        const url = `${config.shutter_api_base}/get_data_for_encryption?address=${config.registry_address}&identityPrefix=${shutterIdentity.message.identity_prefix}`;
+        const url = `${publicConfig.shutter_api_base}/get_data_for_encryption?address=${publicConfig.registry_address}&identityPrefix=${shutterIdentity.message.identity_prefix}`;
         const resp = await axios.get(url);
         encryptionData = resp.data;
         setStatus("Got Shutter encryption data!");

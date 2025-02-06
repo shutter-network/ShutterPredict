@@ -7,7 +7,7 @@ let config = null;
 let contractABI = null;
 
 async function loadConfig() {
-    const configResponse = await fetch("config.json");
+    const configResponse = await fetch("public_config.json");
     config = await configResponse.json();
 
     const abiResponse = await fetch("contract_abi.json");
