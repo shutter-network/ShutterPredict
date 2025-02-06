@@ -224,11 +224,14 @@ async function commitPrediction() {
       decryptContent.style.display = "block";
       document.querySelector("#decrypt-section .collapsible .arrow").textContent = "▼";
     }
+    // Display the commit explanation
+    displayCommitExplanation();
   } catch (err) {
     console.error("commitPrediction error:", err);
     setStatus(`Error committing prediction: ${err.message}`);
   }
 }
+
 
 // ======================
 // New: Tweet Prediction (opens pre-filled tweet)
@@ -249,10 +252,22 @@ function tweetPrediction() {
   const explorerLink = `https://pepae.github.io/ShutterPredict/prediction_detail.html?id=${latestId}`;
   // Get the first 10 characters of the ciphertext.
   const shortCiphertext = encryptedCiphertext.substring(0, 10);
-  const tweetText = `I have committed on-chain to a prediction which is threshold encrypted until ${dateString}.\n\nHere are the first 10 characters of the ciphertext: ${shortCiphertext}\n\nHere's a link to view it: ${explorerLink}\n\nMore info: https://shutter.network`;
+  const tweetText = `I have committed on-chain to a prediction which is threshold encrypted until ${dateString}.\n\nHere are the first 10 characters of the ciphertext: ${shortCiphertext}\n\nHere's a link to view it: ${explorerLink}\n\nFollow @ShutterPredict to see this prediction revealed when the time comes!`;
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
   window.open(tweetUrl, "_blank");
 }
+
+function displayCommitExplanation() {
+  const commitExplanation = document.getElementById("commitExplanation");
+  if (commitExplanation) {
+    commitExplanation.style.display = "block";
+    document.getElementById("unlockTime").textContent = formatDecryptionTime(chosenDecryptionTimestamp);
+    const latestId = document.getElementById("predictionIdOutput").textContent;
+    // Assuming your explorer detail page is prediction_detail.html
+    document.getElementById("explorerDetailLink").href = `prediction_detail.html?id=${latestId}`;
+  }
+}
+
 
 // ======================
 // F) Decrypt Prediction
