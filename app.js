@@ -164,7 +164,7 @@ async function fetchEncryptionData() {
 // ======================
 // D) Encrypt Prediction
 // ======================
-async function encryptPrediction() {
+async function shutterEncryptPrivateKey() {
     const predictionText = document.getElementById("predictionText").value.trim();
     if (!predictionText) {
         setStatus("Please enter a prediction!");
