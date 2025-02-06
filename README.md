@@ -1,7 +1,3 @@
-Here's a draft for your **Shutter PREDICT** README:
-
----
-
 # Shutter PREDICT
 
 Shutter PREDICT is a decentralized application (dApp) built on **Gnosis Chain**, enabling users to **threshold-encrypt** predictions, commit them on-chain, and reveal them when a pre-specified time has passed. The encrypted predictions are safeguarded by Shutter's keyper network, ensuring privacy and integrity until the reveal time.

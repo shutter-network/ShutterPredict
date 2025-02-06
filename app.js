@@ -3,7 +3,7 @@ import axios from "https://cdn.skypack.dev/axios";
 import { Buffer } from "https://esm.sh/buffer";
 
 // ======================
-// Load Configuration
+// Load Configuration and ABI
 // ======================
 let config = null;
 let contractABI = null;
@@ -177,7 +177,6 @@ async function encryptPrediction() {
     }
     const chosenDate = new Date(dtValue);
     chosenDecryptionTimestamp = Math.floor(chosenDate.getTime() / 1000);
-    // Enforce a minimum reveal time of now+30 seconds
     const minTimestamp = Math.floor(Date.now() / 1000) + 30;
     if (chosenDecryptionTimestamp < minTimestamp) {
         chosenDecryptionTimestamp = minTimestamp;
