@@ -2,13 +2,6 @@ import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.es
 import axios from "https://cdn.skypack.dev/axios";
 import { Buffer } from "https://esm.sh/buffer";
 
-// Load configuration and ABI from external JSON files.
-const config = await fetch("public_config.json").then((res) => res.json());
-const CONTRACT_ADDRESS = config.contract_address;
-const SHUTTER_API_BASE = config.shutter_api_base;
-const REGISTRY_ADDRESS = config.registry_address;
-const CONTRACT_ABI = await fetch("contract_abi.json").then((res) => res.json());
-
 // ======================
 // Global Variables
 // ======================
@@ -19,6 +12,21 @@ let shutterIdentity = null;
 let encryptionData = null;
 let encryptedCiphertext = null;
 let chosenDecryptionTimestamp = null;
+
+// Load configuration and ABI from external JSON files.
+let CONTRACT_ADDRESS;
+let CONTRACT_ABI;
+let SHUTTER_API_BASE;
+let REGISTRY_ADDRESS;
+
+const configResponse = await fetch("public_config.json");
+const config = await configResponse.json();
+CONTRACT_ADDRESS = config.contract_address;
+SHUTTER_API_BASE = config.shutter_api_base;
+REGISTRY_ADDRESS = config.registry_address;
+
+const abiResponse = await fetch("contract_abi.json");
+CONTRACT_ABI = await abiResponse.json();
 
 // ======================
 // Utility Functions
