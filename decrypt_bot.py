@@ -5,56 +5,64 @@ from web3 import Web3
 from eth_account import Account
 from requests_oauthlib import OAuth1
 
-# ======================
-# Load and Update Configuration
-# ======================
-CONFIG_FILE = "config.json"
 
-def load_config():
-    """Load the configuration file."""
+
+PUBLIC_CONFIG_FILE = "public_config.json"
+PRIVATE_CONFIG_FILE = "private_config.json"
+
+def load_public_config():
     try:
-        with open(CONFIG_FILE, "r") as config_file:
-            return json.load(config_file)
+        with open(PUBLIC_CONFIG_FILE, "r") as f:
+            return json.load(f)
     except FileNotFoundError:
-        print("Configuration file not found.")
+        print("Public configuration file not found.")
         return {}
 
-def save_config(updated_config):
-    """Save the updated configuration to the config file."""
-    with open(CONFIG_FILE, "w") as config_file:
-        json.dump(updated_config, config_file, indent=4)
-    print("Config file updated successfully.")
+def load_private_config():
+    try:
+        with open(PRIVATE_CONFIG_FILE, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("Private configuration file not found.")
+        return {}
 
-config = load_config()
+def save_private_config(updated_config):
+    with open(PRIVATE_CONFIG_FILE, "w") as f:
+        json.dump(updated_config, f, indent=4)
+    print("Private configuration updated successfully.")
 
-# Generate a new address and save if private key is missing
-if not config.get("private_key"):
+# Load configurations
+public_config = load_public_config()
+private_config = load_private_config()
+
+# Generate new Ethereum address if private key is missing
+if not private_config.get("private_key"):
     print("No private key found. Generating a new Ethereum address...")
     new_account = Account.create()
     new_private_key = new_account.key.hex()
     new_address = new_account.address
 
-    config["private_key"] = new_private_key
-    save_config(config)
+    private_config["private_key"] = new_private_key
+    save_private_config(private_config)
 
     print(f"New Ethereum address generated and saved:\nAddress: {new_address}\nPrivate Key: {new_private_key}")
 
-# ======================
-# Initialize Constants and API Clients
-# ======================
-RPC_URL = config["rpc_url"]
-CONTRACT_ADDRESS = config["contract_address"]
-SHUTTER_API_BASE = config["shutter_api_base"]
-REGISTRY_ADDRESS = config["registry_address"]
-PRIVATE_KEY = config["private_key"]
+# Set constants from public config
+RPC_URL = public_config["rpc_url"]
+CONTRACT_ADDRESS = public_config["contract_address"]
+SHUTTER_API_BASE = public_config["shutter_api_base"]
+REGISTRY_ADDRESS = public_config["registry_address"]
 
-# Initialize OAuth1 for Twitter API (required for write actions)
+# Set private variables and initialize OAuth1 using private config
+PRIVATE_KEY = private_config["private_key"]
+
 oauth = OAuth1(
-    client_key=config["twitter_auth"]["consumer_key"],
-    client_secret=config["twitter_auth"]["consumer_secret"],
-    resource_owner_key=config["twitter_auth"]["access_token"],
-    resource_owner_secret=config["twitter_auth"]["access_token_secret"]
+    client_key=private_config["twitter_auth"]["consumer_key"],
+    client_secret=private_config["twitter_auth"]["consumer_secret"],
+    resource_owner_key=private_config["twitter_auth"]["access_token"],
+    resource_owner_secret=private_config["twitter_auth"]["access_token_secret"]
 )
+
 
 TWITTER_API_URL = "https://api.twitter.com/2/tweets"
 
