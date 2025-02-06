@@ -79,10 +79,9 @@ async function connectWallet() {
 
         console.log("Connected to network:", network);
 
-        // If the current network is not Gnosis Chain, prompt to switch/add it
         if (network.chainId !== 100) {
             const gnosisChainParams = {
-                chainId: '0x64', // Gnosis Chain ID in hexadecimal
+                chainId: '0x64',
                 chainName: 'Gnosis Chain',
                 nativeCurrency: {
                     name: 'XDAI',
@@ -93,26 +92,17 @@ async function connectWallet() {
                 blockExplorerUrls: ['https://gnosisscan.io'],
             };
 
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_addEthereumChain',
-                    params: [gnosisChainParams],
-                });
+            await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [gnosisChainParams],
+            });
 
-                // Re-fetch the provider and network after switching
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
-                contract = new ethers.Contract(config.contract_address, contractABI, signer);
-                setStatus("Wallet connected to Gnosis Chain!");
-            } catch (switchError) {
-                console.error("Failed to switch to Gnosis Chain:", switchError);
-                setStatus("Please connect to the Gnosis Chain network.");
-            }
-        } else {
-            signer = provider.getSigner();
-            contract = new ethers.Contract(config.contract_address, contractABI, signer);
-            setStatus("Wallet connected to Gnosis Chain!");
+            provider = new ethers.providers.Web3Provider(window.ethereum);
         }
+
+        signer = provider.getSigner();
+        contract = new ethers.Contract(config.contract_address, contractABI, signer);
+        setStatus("Wallet connected to Gnosis Chain!");
     } catch (err) {
         console.error("connectWallet error:", err);
         setStatus("Error connecting wallet.");
@@ -133,7 +123,6 @@ async function registerIdentity(decryptionTimestamp) {
         });
         shutterIdentity = resp.data;
         setStatus("Shutter identity registered successfully!");
-        console.log("Shutter Identity:", shutterIdentity);
     } catch (err) {
         console.error("registerIdentity error:", err);
         setStatus(`Error registering identity: ${err.response?.data?.description || "An error occurred"}`);
@@ -154,47 +143,113 @@ async function fetchEncryptionData() {
         const resp = await axios.get(url);
         encryptionData = resp.data;
         setStatus("Got Shutter encryption data!");
-        console.log("Encryption Data:", encryptionData);
     } catch (err) {
         console.error("fetchEncryptionData error:", err);
-        setStatus(`Error fetching encryption data: ${err.response?.data?.description || "An error occurred"}`);
+        setStatus("Error fetching encryption data.");
     }
 }
 
 // ======================
 // D) Encrypt Prediction
 // ======================
-async function shutterEncryptPrivateKey() {
+async function encryptPrediction() {
     const predictionText = document.getElementById("predictionText").value.trim();
     if (!predictionText) {
         setStatus("Please enter a prediction!");
         return;
     }
+
     const dtValue = document.getElementById("decryptionTimestamp").value;
     if (!dtValue) {
         setStatus("Please select a reveal time!");
         return;
     }
+
     const chosenDate = new Date(dtValue);
     chosenDecryptionTimestamp = Math.floor(chosenDate.getTime() / 1000);
-    const minTimestamp = Math.floor(Date.now() / 1000) + 30;
-    if (chosenDecryptionTimestamp < minTimestamp) {
-        chosenDecryptionTimestamp = minTimestamp;
+    if (chosenDecryptionTimestamp < Math.floor(Date.now() / 1000) + 30) {
+        chosenDecryptionTimestamp = Math.floor(Date.now() / 1000) + 30;
     }
+
     await registerIdentity(chosenDecryptionTimestamp);
     if (!shutterIdentity) return;
     await fetchEncryptionData();
     if (!encryptionData) return;
+
     setStatus("Encrypting prediction...");
     const msgHex = "0x" + Buffer.from(predictionText, "utf8").toString("hex");
+
     try {
         encryptedCiphertext = await shutterEncryptPrivateKey(msgHex, encryptionData.message, null);
         document.getElementById("ciphertextOutput").textContent = encryptedCiphertext;
         setStatus("Encryption complete!");
-        console.log("Encrypted ciphertext:", encryptedCiphertext);
     } catch (err) {
         console.error("Encryption error:", err);
-        setStatus("Error during encryption");
+        setStatus("Error during encryption.");
+    }
+}
+
+// ======================
+// E) Commit Prediction
+// ======================
+async function commitPrediction() {
+    if (!contract || !encryptionData) {
+        setStatus("Ensure contract and encryption data are initialized!");
+        return;
+    }
+
+    setStatus("Committing encrypted prediction on-chain...");
+    try {
+        const identity = await getShutterIdentity();
+        const tx = await contract.commitPrediction(encryptedCiphertext, chosenDecryptionTimestamp, identity);
+        await tx.wait();
+        setStatus("Commit successful!");
+        await displayPredictionId();
+    } catch (err) {
+        console.error("commitPrediction error:", err);
+        setStatus("Error committing prediction.");
+    }
+}
+
+// ======================
+// F) Decrypt Prediction
+// ======================
+async function decryptPrediction() {
+    const predictionId = Number(document.getElementById("decryptionPredictionId").value);
+    if (isNaN(predictionId)) {
+        setStatus("Please enter a valid Prediction ID!");
+        return;
+    }
+
+    try {
+        const predictionData = await contract.predictions(predictionId);
+        const encryptedCommitment = predictionData[1];
+        const revealTime = predictionData[2];
+        const isRevealed = predictionData[4];
+
+        if (isRevealed) {
+            setStatus(`Prediction already revealed: "${predictionData[3]}"`);
+            return;
+        }
+
+        startCountdown(revealTime);
+        setStatus("Fetching Shutter decryption key...");
+        const keyResp = await axios.get(`${config.shutter_api_base}/get_decryption_key`, {
+            params: { identity: predictionData[5], registry: config.registry_address }
+        });
+
+        const finalDecryptionKey = keyResp.data?.message?.decryption_key;
+        if (!finalDecryptionKey) {
+            setStatus("Decryption key not available yet!");
+            return;
+        }
+
+        const decryptedHex = await window.shutter.decrypt(encryptedCommitment, finalDecryptionKey);
+        const decryptedText = Buffer.from(decryptedHex.slice(2), "hex").toString("utf8");
+        setStatus(`Decryption complete! Plaintext: "${decryptedText}"`);
+    } catch (err) {
+        console.error("decryptPrediction error:", err);
+        setStatus("Error decrypting prediction.");
     }
 }
 
@@ -205,4 +260,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadConfig();
     await connectWallet();
     document.getElementById("encrypt-btn").addEventListener("click", encryptPrediction);
+    document.getElementById("commit-btn").addEventListener("click", commitPrediction);
+    document.getElementById("decrypt-btn").addEventListener("click", decryptPrediction);
 });
