@@ -241,7 +241,7 @@ def run_bot():
             print("Error:", str(e))
 
         print("Waiting for the next check...")
-        time.sleep(600)  # Check every 10 minutes
+        time.sleep(10)  # Check every 10 minutes
 
 def test_decrypt_latest_prediction():
     """Test function to fetch, decrypt, and display the latest prediction."""

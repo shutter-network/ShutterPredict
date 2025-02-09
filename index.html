@@ -5,128 +5,354 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SHUTTER PREDICT</title>
     <style>
-      /* (Keep existing styles) */
-      body { margin: 0; font-family: Arial, sans-serif; background-color: #f5f5f5; color: #333; }
-      .container { max-width: 800px; margin: 40px auto; padding: 20px; }
-      header { text-align: center; margin-bottom: 20px; }
-      h1, h2 { font-family: "Arial Black", Arial, sans-serif; }
-      h1 { font-size: 4em; margin: 0; }
-      header p { font-size: 1.2em; color: #555; margin-top: 10px; }
-      .status { padding: 10px; background: #eee; border: 1px solid #ccc; text-align: center; margin-bottom: 20px; }
-      nav { text-align: center; margin-bottom: 20px; }
-      nav a { text-decoration: none; color: #007acc; font-weight: bold; margin: 0 10px; }
-      section { background: #fff; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-      section h2.collapsible { margin: 0; padding: 15px; color: #007acc; border-bottom: 1px solid #ddd; cursor: pointer; user-select: none; }
-      section h2.collapsible .arrow { margin-right: 8px; }
-      .content { padding: 20px; }
-      label { display: block; margin: 12px 0 5px; }
-      input[type="text"], input[type="datetime-local"], input[type="number"] {
-        width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;
+      /* Global Reset & Fonts */
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        background: transparent;
+        overflow: hidden;
       }
-      button { display: inline-block; margin-top: 10px; margin-bottom: 15px; padding: 10px 20px; font-size: 1em; border: none; border-radius: 4px; background: #007acc; color: #fff; cursor: pointer; }
-      button:hover { background: #005fa3; }
-      .output { background: #f9f9f9; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-top: 10px; font-family: monospace; word-break: break-all; }
-      .commit-field { margin-bottom: 15px; }
-      #explorerLink { margin-top: 10px; text-align: center; }
-      #explorerLink a { text-decoration: none; color: #007acc; font-weight: bold; }
-      /* New commit explanation styling */
+      /* Video Background */
+      #bg-video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+      }
+      /* Intro Overlay */
+      #intro-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgb(255 255 255 / 0%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        transition: opacity 1s;
+      }
+      /* Intro Container (no glass pane) */
+      .intro-glass {
+        padding: 60px 80px;
+        text-align: center;
+        max-width: 600px;
+        width: 90%;
+      }
+      .intro-glass h1 {
+        font-family: 'Times New Roman', serif;
+        color: #fff;
+        font-size: 3em;
+        margin-bottom: 40px;
+        letter-spacing: 1px;
+      }
+      .intro-glass input[type="text"] {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+        border: none;
+        border-radius: 8px;
+        text-align: center;
+        outline: none;
+        background: rgba(255, 255, 255, 0.8);
+        color: #333;
+        font-family: 'Times New Roman', serif;
+      }
+      .intro-glass button {
+        background: transparent;
+        border: 2px solid #fff;
+        color: #fff;
+        padding: 15px 40px;
+        font-size: 1.2em;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: 'Times New Roman', serif;
+        transition: background 0.3s, color 0.3s;
+      }
+      .intro-glass button:hover {
+        background: #fff;
+        color: #000;
+      }
+      /* Main Content Container */
+      #main-content {
+        display: none;
+        opacity: 0;
+        transition: opacity 1s;
+        position: relative;
+        z-index: 20;
+        overflow: auto;
+        height: 100%;
+      }
+      /* Container without glass pane */
+      .container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 20px;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      /* Dark grey heading */
+      header h1 {
+        font-family: "Arial Black", Arial, sans-serif;
+        font-size: 4em;
+        margin: 0;
+        color: #333;
+      }
+      /* Ultra light grey description */
+      header p {
+        font-size: 1.2em;
+        color: #333;
+        margin-top: 10px;
+      }
+      .status {
+        padding: 10px;
+        background: #eee;
+        border: 1px solid #ccc;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      nav {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      nav a {
+        text-decoration: none;
+        color: #ffffff;
+        font-weight: bold;
+        margin: 0 10px;
+      }
+      section {
+        background: #fff;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      section h2.collapsible {
+        margin: 0;
+        padding: 15px;
+        color: #007acc;
+        border-bottom: 1px solid #ddd;
+        cursor: pointer;
+        user-select: none;
+      }
+      section h2.collapsible .arrow {
+        margin-right: 8px;
+      }
+      .content {
+        padding: 20px;
+      }
+      label {
+        display: block;
+        margin: 12px 0 5px;
+      }
+      input[type="text"],
+      input[type="datetime-local"],
+      input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        display: inline-block;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        padding: 10px 20px;
+        font-size: 1em;
+        border: none;
+        border-radius: 4px;
+        background: #007acc;
+        color: #fff;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #005fa3;
+      }
+      .output {
+        background: #f9f9f9;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 10px;
+        font-family: monospace;
+        word-break: break-all;
+      }
+      .commit-field {
+        margin-bottom: 15px;
+      }
+      #explorerLink {
+        margin-top: 10px;
+        text-align: center;
+      }
+      #explorerLink a {
+        text-decoration: none;
+        color: #007acc;
+        font-weight: bold;
+      }
       #commitExplanation {
-        display: none; margin-top: 20px; padding: 15px; background-color: #e0ffe0;
-        border: 1px solid #b0ffb0; border-radius: 4px;
+        display: none;
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #e0ffe0;
+        border: 1px solid #b0ffb0;
+        border-radius: 4px;
       }
-      /* Responsive Design (existing media queries) */
-      @media (max-width: 768px) { .container { padding: 10px; } h1 { font-size: 2.5em; } header p { font-size: 1em; } section h2.collapsible { font-size: 1.2em; } button { width: 100%; } }
-      @media (max-width: 480px) { h1 { font-size: 2em; } header p { font-size: 0.9em; } .content { padding: 15px; } button { padding: 8px; font-size: 0.9em; } input[type="text"], input[type="datetime-local"], input[type="number"] { padding: 6px; } .output { padding: 8px; } }
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+        header h1 {
+          font-size: 2.5em;
+        }
+        header p {
+          font-size: 1em;
+        }
+        section h2.collapsible {
+          font-size: 1.2em;
+        }
+        button {
+          width: 100%;
+        }
+      }
+      @media (max-width: 480px) {
+        header h1 {
+          font-size: 2em;
+        }
+        header p {
+          font-size: 0.9em;
+        }
+        .content {
+          padding: 15px;
+        }
+        button {
+          padding: 8px;
+          font-size: 0.9em;
+        }
+        input[type="text"],
+        input[type="datetime-local"],
+        input[type="number"] {
+          padding: 6px;
+        }
+        .output {
+          padding: 8px;
+        }
+      }
     </style>
   </head>
   <body>
-    <div class="container">
-      <header>
-        <h1>SHUTTER PREDICT</h1>
-        <p>This dapp allows you to threshold-encrypt your predictions, commit them on-chain on Gnosis Chain, and have the Shutter keypers generate the decryption key for them when the time comes.</p>
-      </header>
-      <div class="status">
-        <strong>Status:</strong> <span id="status">N/A</span>
+    <!-- Video Background -->
+    <video autoplay muted loop id="bg-video">
+      <source src="your-crystal-ball-video.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+    <!-- Intro Overlay -->
+    <div id="intro-overlay">
+      <div class="intro-glass">
+        <h1>What will you predict?</h1>
+        <input type="text" id="intro-prediction" placeholder="Type your prediction here..." />
+        <button id="predict-btn">Enter</button>
       </div>
-      <nav>
-        <a href="explorer.html">Go to Explorer</a>
-      </nav>
-
-      <!-- Step 1: ENCRYPT -->
-      <section id="encrypt-section">
-        <h2 class="collapsible"><span class="arrow">▼</span> Step 1: ENCRYPT</h2>
-        <div class="content">
-          <label for="predictionText">Your Prediction:</label>
-          <input type="text" id="predictionText" placeholder="e.g. BTC = $50k" />
-          <label for="decryptionTimestamp">Reveal Time:</label>
-          <input type="datetime-local" id="decryptionTimestamp" />
-          <button id="encrypt-btn">Encrypt</button>
-          <div>
-            <strong>Ciphertext:</strong>
-            <div class="output" id="ciphertextOutput">N/A</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Step 2: COMMIT -->
-      <section id="commit-section">
-        <h2 class="collapsible"><span class="arrow">►</span> Step 2: COMMIT</h2>
-        <div class="content">
-          <button id="commit-btn">Commit</button>
-          <!-- Removed the original tweet button to include it in the explanation below -->
-          <div class="commit-field">
-            <strong>Prediction ID:</strong>
-            <div class="output" id="predictionIdOutput">N/A</div>
-          </div>
-          <div class="commit-field">
-            <strong>Decryption Time:</strong>
-            <div class="output" id="decryptionTimeOutput">N/A</div>
-          </div>
-          <div class="commit-field">
-            <strong>Countdown:</strong>
-            <div class="output" id="countdownOutput">N/A</div>
-          </div>
-          <div id="explorerLink"></div>
-          <!-- New explanation area -->
-          <div id="commitExplanation">
-            <p>
-              Congrats! You have made an encrypted prediction that will unlock at
-              <span id="unlockTime"></span>.
-            </p>
-            <button id="tweet-btn">Tweet about it!</button>
-            <p>
-              Check out your prediction on the explorer:
-              <a id="explorerDetailLink" href="#" target="_blank">View Prediction</a>
-            </p>
-            <p>
-              Follow this Twitter bot to see your prediction revealed when time comes:
-              <a href="https://x.com/ShutterPredict" target="_blank">https://x.com/ShutterPredict</a>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Step 3: DECRYPT -->
-      <section id="decrypt-section">
-        <h2 class="collapsible"><span class="arrow">►</span> (Optional) DECRYPT</h2>
-        <div class="content">
-          <p>Predictions will be decrypted for you and a twitter bot will post them. If you want, you can decrypt any predictions which are passed their reveal date here:</p>
-          <br>
-          <label for="decryptionPredictionId">Prediction ID:</label>
-          <input type="number" id="decryptionPredictionId" placeholder="Enter Prediction ID" />
-          <button id="decrypt-btn">Decrypt</button>
-          <div>
-            <strong>Decrypted Text:</strong>
-            <div class="output" id="decryptedOutput">N/A</div>
-          </div>
-        </div>
-      </section>
     </div>
-
+    <!-- Main Content -->
+    <div id="main-content">
+      <div class="container">
+        <header>
+          <h1>SHUTTER PREDICT</h1>
+          <p>This dapp allows you to threshold-encrypt your predictions, commit them on-chain on Gnosis Chain, and have the Shutter keypers generate the decryption key for them when the time comes.</p>
+        </header>
+        <div class="status">
+          <strong>Status:</strong> <span id="status">N/A</span>
+        </div>
+        <nav>
+          <a href="explorer.html">Go to Explorer</a>
+        </nav>
+        <!-- Step 1: ENCRYPT -->
+        <section id="encrypt-section">
+          <h2 class="collapsible"><span class="arrow">▼</span> Step 1: ENCRYPT</h2>
+          <div class="content">
+            <label for="predictionText">Your Prediction:</label>
+            <input type="text" id="predictionText" placeholder="e.g. BTC = $50k" />
+            <label for="decryptionTimestamp">Reveal Time:</label>
+            <input type="datetime-local" id="decryptionTimestamp" />
+            <button id="encrypt-btn">Encrypt</button>
+            <div>
+              <strong>Ciphertext:</strong>
+              <div class="output" id="ciphertextOutput">N/A</div>
+            </div>
+          </div>
+        </section>
+        <!-- Step 2: COMMIT -->
+        <section id="commit-section">
+          <h2 class="collapsible"><span class="arrow">►</span> Step 2: COMMIT</h2>
+          <div class="content">
+            <button id="commit-btn">Commit</button>
+            <div class="commit-field">
+              <strong>Prediction ID:</strong>
+              <div class="output" id="predictionIdOutput">N/A</div>
+            </div>
+            <div class="commit-field">
+              <strong>Decryption Time:</strong>
+              <div class="output" id="decryptionTimeOutput">N/A</div>
+            </div>
+            <div class="commit-field">
+              <strong>Countdown:</strong>
+              <div class="output" id="countdownOutput">N/A</div>
+            </div>
+            <div id="explorerLink"></div>
+            <div id="commitExplanation">
+              <p>
+                Congrats! You have made an encrypted prediction that will unlock at
+                <span id="unlockTime"></span>.
+              </p>
+              <button id="tweet-btn">Tweet about it!</button>
+              <p>
+                Check out your prediction on the explorer:
+                <a id="explorerDetailLink" href="#" target="_blank">View Prediction</a>
+              </p>
+              <p>
+                Follow this Twitter bot to see your prediction revealed when time comes:
+                <a href="https://x.com/ShutterPredict" target="_blank">https://x.com/ShutterPredict</a>
+              </p>
+            </div>
+          </div>
+        </section>
+        <!-- Step 3: DECRYPT -->
+        <section id="decrypt-section">
+          <h2 class="collapsible"><span class="arrow">►</span> (Optional) DECRYPT</h2>
+          <div class="content">
+            <p>
+              Predictions will be decrypted for you and a Twitter bot will post them.
+              If you want, you can decrypt any predictions which are past their reveal date here:
+            </p>
+            <br />
+            <label for="decryptionPredictionId">Prediction ID:</label>
+            <input type="number" id="decryptionPredictionId" placeholder="Enter Prediction ID" />
+            <button id="decrypt-btn">Decrypt</button>
+            <div>
+              <strong>Decrypted Text:</strong>
+              <div class="output" id="decryptedOutput">N/A</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
     <script src="./blst.js"></script>
     <script type="module" src="./main.js"></script>
     <script type="module" src="./app.js"></script>
     <script>
+      // Collapsible sections
       document.addEventListener("DOMContentLoaded", () => {
         const collapsibles = document.querySelectorAll(".collapsible");
         collapsibles.forEach(header => {
@@ -148,13 +374,35 @@
         document.querySelector("#decrypt-section .content").style.display = "none";
         document.querySelector("#decrypt-section .collapsible .arrow").textContent = "►";
       });
-
+      
+      // Set default reveal time
       document.addEventListener("DOMContentLoaded", () => {
         const dtInput = document.getElementById("decryptionTimestamp");
         const now = new Date(Date.now() + 30000);
         const pad = n => n.toString().padStart(2, "0");
         const formatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
         dtInput.value = formatted;
+      });
+      
+      // Transfer prediction from intro to main content on click
+      document.getElementById("predict-btn").addEventListener("click", () => {
+        const userPrediction = document.getElementById("intro-prediction").value;
+        document.getElementById("predictionText").value = userPrediction;
+        const overlay = document.getElementById("intro-overlay");
+        overlay.style.opacity = 0;
+        setTimeout(() => {
+          overlay.style.display = "none";
+          const mainContent = document.getElementById("main-content");
+          mainContent.style.display = "block";
+          setTimeout(() => mainContent.style.opacity = 1, 50);
+        }, 1000);
+      });
+      
+      // Also allow Enter key to trigger the prediction
+      document.getElementById("intro-prediction").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+          document.getElementById("predict-btn").click();
+        }
       });
     </script>
   </body>
