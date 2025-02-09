@@ -103,7 +103,7 @@ async function connectWallet() {
       }
     } catch (err) {
       console.error("connectWallet error:", err);
-      setStatus("Error connecting wallet please refresh.");
+      setStatus("Error connecting wallet, please refresh the page.");
     }
   }
   
