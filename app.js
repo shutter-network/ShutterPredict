@@ -54,58 +54,60 @@ function startCountdown(decryptionTimestamp) {
 // A) Connect Wallet (auto-called on page load)
 // ======================
 async function connectWallet() {
-    try {
+  try {
       if (!window.ethereum) {
-        alert("MetaMask not found!");
-        return;
+          alert("MetaMask not found!");
+          return;
       }
-  
+
       await window.ethereum.request({ method: "eth_requestAccounts" });
-  
+
       provider = new ethers.providers.Web3Provider(window.ethereum);
       const network = await provider.getNetwork();
-  
+
       console.log("Connected to network:", network);
-  
-      // If the current network is not Gnosis Chain, prompt to switch/add it
+
       if (network.chainId !== 100) {
-        const gnosisChainParams = {
-          chainId: '0x64', // Gnosis Chain ID in hexadecimal
-          chainName: 'Gnosis Chain',
-          nativeCurrency: {
-            name: 'XDAI',
-            symbol: 'XDAI',
-            decimals: 18,
-          },
-          rpcUrls: ['https://rpc.gnosischain.com'],
-          blockExplorerUrls: ['https://gnosisscan.io'],
-        };
-  
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [gnosisChainParams],
-          });
-  
-          // Re-fetch the provider and network after switching
-          provider = new ethers.providers.Web3Provider(window.ethereum);
-          signer = provider.getSigner();
-          contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-          setStatus("Wallet connected to Gnosis Chain!");
-        } catch (switchError) {
-          console.error("Failed to switch to Gnosis Chain:", switchError);
-          setStatus("Please connect to the Gnosis Chain network.");
-        }
-      } else {
-        signer = provider.getSigner();
-        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-        setStatus("Wallet connected to Gnosis Chain!");
+          const gnosisChainParams = {
+              chainId: '0x64',
+              chainName: 'Gnosis Chain',
+              nativeCurrency: {
+                  name: 'XDAI',
+                  symbol: 'XDAI',
+                  decimals: 18,
+              },
+              rpcUrls: ['https://rpc.gnosischain.com'],
+              blockExplorerUrls: ['https://gnosisscan.io'],
+          };
+
+          try {
+              await window.ethereum.request({
+                  method: 'wallet_addEthereumChain',
+                  params: [gnosisChainParams],
+              });
+
+              provider = new ethers.providers.Web3Provider(window.ethereum);
+          } catch (switchError) {
+              console.error("Failed to switch to Gnosis Chain:", switchError);
+              setStatus("Please connect to the Gnosis Chain network.");
+              return;
+          }
       }
-    } catch (err) {
+
+      signer = provider.getSigner();
+      contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+      // Fetch and store commitment fee
+      const fee = await contract.commitmentFee();
+      window.commitmentFee = fee;  // Store fee globally
+
+      setStatus("Wallet connected to Gnosis Chain!");
+  } catch (err) {
       console.error("connectWallet error:", err);
       setStatus("Error connecting wallet, please refresh the page.");
-    }
   }
+}
+
   
 
 // ======================
@@ -200,37 +202,39 @@ async function encryptPrediction() {
 // ======================
 async function commitPrediction() {
   if (!contract || !encryptionData) {
-    setStatus("Ensure contract and encryption data are initialized!");
-    return;
+      setStatus("Ensure contract and encryption data are initialized!");
+      return;
   }
   if (!encryptedCiphertext || !chosenDecryptionTimestamp) {
-    setStatus("Please encrypt your prediction first!");
-    return;
+      setStatus("Please encrypt your prediction first!");
+      return;
   }
+
   setStatus("Committing encrypted prediction on-chain...");
+
   try {
-    const identity = await getShutterIdentity();
-    const tx = await contract.commitPrediction(encryptedCiphertext, chosenDecryptionTimestamp, identity);
-    console.log("Transaction sent:", tx);
-    await tx.wait();
-    console.log("Transaction confirmed!");
-    setStatus("Commit successful!");
-    await displayPredictionId();
-    document.getElementById("decryptionTimeOutput").textContent = formatDecryptionTime(chosenDecryptionTimestamp);
-    startCountdown(chosenDecryptionTimestamp);
-    // Auto-expand Step 3 after commit is complete.
-    const decryptContent = document.querySelector("#decrypt-section .content");
-    if (decryptContent) {
-      decryptContent.style.display = "block";
-      document.querySelector("#decrypt-section .collapsible .arrow").textContent = "▼";
-    }
-    // Display the commit explanation
-    displayCommitExplanation();
+      const identity = await getShutterIdentity();
+      const tx = await contract.commitPrediction(
+          encryptedCiphertext,
+          chosenDecryptionTimestamp,
+          identity,
+          { value: window.commitmentFee }  // Send the fee with the transaction
+      );
+
+      console.log("Transaction sent:", tx);
+      await tx.wait();
+      console.log("Transaction confirmed!");
+      setStatus("Commit successful!");
+      await displayPredictionId();
+      document.getElementById("decryptionTimeOutput").textContent = formatDecryptionTime(chosenDecryptionTimestamp);
+      startCountdown(chosenDecryptionTimestamp);
+      displayCommitExplanation();
   } catch (err) {
-    console.error("commitPrediction error:", err);
-    setStatus(`Error committing prediction: ${err.message}`);
+      console.error("commitPrediction error:", err);
+      setStatus(`Error committing prediction: ${err.message}`);
   }
 }
+
 
 
 // ======================

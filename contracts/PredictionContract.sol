@@ -16,6 +16,8 @@ contract PredictionContract {
         string shutterIdentity;    // Shutter identity associated with the prediction
     }
 
+    address public deployer;
+    uint256 public commitmentFee;
     mapping(uint256 => Prediction) public predictions;
     uint256 public predictionCount;
 
@@ -32,8 +34,13 @@ contract PredictionContract {
         string revealedText
     );
 
+    constructor(uint256 _commitmentFee) {
+        deployer = msg.sender;
+        commitmentFee = _commitmentFee;
+    }
+
     /**
-     * @dev Commit an encrypted prediction. Optionally set a specific reveal time.
+     * @dev Commit an encrypted prediction with optional fee payment.
      * @param _encryptedData The Shutter-encrypted bytes.
      * @param _revealTime The earliest block timestamp the prediction can be revealed (0 if no on-chain time check).
      * @param _shutterIdentity The Shutter identity of the user making the prediction.
@@ -44,7 +51,10 @@ contract PredictionContract {
         string calldata _shutterIdentity
     )
         external
+        payable
     {
+        require(msg.value >= commitmentFee, "Insufficient fee");
+
         predictions[predictionCount] = Prediction({
             predictor: msg.sender,
             encryptedCommitment: _encryptedData,
@@ -108,5 +118,22 @@ contract PredictionContract {
             p.isRevealed,
             p.shutterIdentity
         );
+    }
+
+    /**
+     * @dev Allows the deployer to withdraw collected fees.
+     */
+    function withdrawFees() external {
+        require(msg.sender == deployer, "Only deployer can withdraw fees");
+        payable(deployer).transfer(address(this).balance);
+    }
+
+    /**
+     * @dev Updates the commitment fee. Can only be called by the deployer.
+     * @param _newFee The new commitment fee.
+     */
+    function updateCommitmentFee(uint256 _newFee) external {
+        require(msg.sender == deployer, "Only deployer can update the fee");
+        commitmentFee = _newFee;
     }
 }

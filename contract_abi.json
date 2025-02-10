@@ -2,25 +2,13 @@
 	{
 		"inputs": [
 			{
-				"internalType": "bytes",
-				"name": "_encryptedData",
-				"type": "bytes"
-			},
-			{
 				"internalType": "uint256",
-				"name": "_revealTime",
+				"name": "_commitmentFee",
 				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_shutterIdentity",
-				"type": "string"
 			}
 		],
-		"name": "commitPrediction",
-		"outputs": [],
 		"stateMutability": "nonpayable",
-		"type": "function"
+		"type": "constructor"
 	},
 	{
 		"anonymous": false,
@@ -87,19 +75,50 @@
 	{
 		"inputs": [
 			{
+				"internalType": "bytes",
+				"name": "_encryptedData",
+				"type": "bytes"
+			},
+			{
 				"internalType": "uint256",
-				"name": "_id",
+				"name": "_revealTime",
 				"type": "uint256"
 			},
 			{
 				"internalType": "string",
-				"name": "_plaintext",
+				"name": "_shutterIdentity",
 				"type": "string"
 			}
 		],
-		"name": "revealPrediction",
+		"name": "commitPrediction",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "commitmentFee",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "deployer",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -201,6 +220,44 @@
 			}
 		],
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "string",
+				"name": "_plaintext",
+				"type": "string"
+			}
+		],
+		"name": "revealPrediction",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_newFee",
+				"type": "uint256"
+			}
+		],
+		"name": "updateCommitmentFee",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawFees",
+		"outputs": [],
+		"stateMutability": "nonpayable",
 		"type": "function"
 	}
 ]
