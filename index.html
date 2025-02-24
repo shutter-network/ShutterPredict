@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SHUTTER PREDICT</title>
+    <!-- Flatpickr CSS for an elegant date/time selector -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
     <style>
       /* Global Reset & Fonts */
       html, body {
@@ -25,7 +27,7 @@
         object-fit: cover;
         z-index: -1;
       }
-      /* Intro Overlay */
+      /* Intro Overlay (First Overlay – Unchanged) */
       #intro-overlay {
         position: fixed;
         top: 0;
@@ -39,7 +41,6 @@
         z-index: 10;
         transition: opacity 1s;
       }
-      /* Intro Container (no glass pane) */
       .intro-glass {
         padding: 60px 80px;
         text-align: center;
@@ -81,6 +82,68 @@
         background: #fff;
         color: #000;
       }
+      /* Time Overlay (Second Overlay – New Design) */
+      #time-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgb(255 255 255 / 0%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        transition: opacity 1s;
+      }
+      .time-glass {
+        padding: 60px 80px;
+        text-align: center;
+        max-width: 600px;
+        width: 90%;
+      }
+      .time-glass h1 {
+        margin-bottom: 40px;
+        letter-spacing: 1px;
+        font-family: 'Times New Roman', serif;
+      }
+      .time-subtext {
+        font-size: 0.7em;
+        color: #d9d9d9;
+      }
+      .time-maintext {
+        font-size: 1.4em;
+        color: #fff;
+        display: block;
+      }
+      .time-glass input[type="text"] {
+        width: 100%;
+        padding: 15px;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+        border: none;
+        border-radius: 8px;
+        text-align: center;
+        outline: none;
+        background: rgba(255, 255, 255, 0.8);
+        color: #333;
+        font-family: 'Times New Roman', serif;
+      }
+      .time-glass button {
+        background: transparent;
+        border: 2px solid #fff;
+        color: #fff;
+        padding: 15px 40px;
+        font-size: 1.2em;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: 'Times New Roman', serif;
+        transition: background 0.3s, color 0.3s;
+      }
+      .time-glass button:hover {
+        background: #fff;
+        color: #000;
+      }
       /* Main Content Container */
       #main-content {
         display: none;
@@ -91,7 +154,6 @@
         overflow: auto;
         height: 100%;
       }
-      /* Container without glass pane */
       .container {
         max-width: 800px;
         margin: 40px auto;
@@ -101,14 +163,12 @@
         text-align: center;
         margin-bottom: 20px;
       }
-      /* Dark grey heading */
       header h1 {
         font-family: "Arial Black", Arial, sans-serif;
         font-size: 4em;
         margin: 0;
         color: #333;
       }
-      /* Ultra light grey description */
       header p {
         font-size: 1.2em;
         color: #333;
@@ -257,12 +317,23 @@
       <source src="your-crystal-ball-video.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
-    <!-- Intro Overlay -->
+    <!-- Intro Overlay: Prediction Input (Unchanged) -->
     <div id="intro-overlay">
       <div class="intro-glass">
         <h1>What will you predict?</h1>
         <input type="text" id="intro-prediction" placeholder="" />
         <button id="predict-btn">Enter</button>
+      </div>
+    </div>
+    <!-- Time Overlay: Reveal Time Selector (New) -->
+    <div id="time-overlay" style="display: none; opacity: 0;">
+      <div class="time-glass">
+        <h1>
+          <span class="time-subtext">Your prediction will initially be encrypted.</span><br>
+          <span class="time-maintext">When should it be revealed?</span>
+        </h1>
+        <input type="text" id="intro-decryptionTimestamp" placeholder="Select reveal date and time" />
+        <button id="time-confirm-btn">Confirm</button>
       </div>
     </div>
     <!-- Main Content -->
@@ -348,11 +419,13 @@
         </section>
       </div>
     </div>
+    <!-- Flatpickr JS for elegant date/time selector -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="./blst.js"></script>
     <script type="module" src="./main.js"></script>
     <script type="module" src="./app.js"></script>
     <script>
-      // Collapsible sections
+      // Collapsible sections setup
       document.addEventListener("DOMContentLoaded", () => {
         const collapsibles = document.querySelectorAll(".collapsible");
         collapsibles.forEach(header => {
@@ -375,16 +448,16 @@
         document.querySelector("#decrypt-section .collapsible .arrow").textContent = "►";
       });
       
-      // Set default reveal time
+      // Initialize flatpickr for the time overlay date/time input using the elegant Airbnb theme
       document.addEventListener("DOMContentLoaded", () => {
-        const dtInput = document.getElementById("decryptionTimestamp");
-        const now = new Date(Date.now() + 30000);
-        const pad = n => n.toString().padStart(2, "0");
-        const formatted = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-        dtInput.value = formatted;
+        flatpickr("#intro-decryptionTimestamp", {
+          enableTime: true,
+          dateFormat: "Y-m-d H:i",
+          defaultDate: new Date(Date.now() + 30000)
+        });
       });
       
-      // Transfer prediction from intro to main content on click
+      // Transfer prediction text and transition to the time overlay on click
       document.getElementById("predict-btn").addEventListener("click", () => {
         const userPrediction = document.getElementById("intro-prediction").value;
         document.getElementById("predictionText").value = userPrediction;
@@ -392,13 +465,27 @@
         overlay.style.opacity = 0;
         setTimeout(() => {
           overlay.style.display = "none";
+          const timeOverlay = document.getElementById("time-overlay");
+          timeOverlay.style.display = "flex";
+          setTimeout(() => timeOverlay.style.opacity = 1, 50);
+        }, 1000);
+      });
+      
+      // When the user confirms the reveal time, prefill the main content and show it
+      document.getElementById("time-confirm-btn").addEventListener("click", () => {
+        const chosenTime = document.getElementById("intro-decryptionTimestamp").value;
+        document.getElementById("decryptionTimestamp").value = chosenTime;
+        const timeOverlay = document.getElementById("time-overlay");
+        timeOverlay.style.opacity = 0;
+        setTimeout(() => {
+          timeOverlay.style.display = "none";
           const mainContent = document.getElementById("main-content");
           mainContent.style.display = "block";
           setTimeout(() => mainContent.style.opacity = 1, 50);
         }, 1000);
       });
       
-      // Also allow Enter key to trigger the prediction
+      // Also allow the Enter key to trigger the prediction overlay
       document.getElementById("intro-prediction").addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
           document.getElementById("predict-btn").click();
