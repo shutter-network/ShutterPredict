@@ -368,9 +368,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   CONTRACT_ABI = await fetch("contract_abi.json").then(res => res.json());
   
-  await connectWallet();
+  //await connectWallet();
   document.getElementById("encrypt-btn").addEventListener("click", encryptPrediction);
   document.getElementById("commit-btn").addEventListener("click", commitPrediction);
   document.getElementById("tweet-btn").addEventListener("click", tweetPrediction);
   document.getElementById("decrypt-btn").addEventListener("click", decryptPrediction);
 });
+window.connectWallet = connectWallet;

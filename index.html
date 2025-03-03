@@ -336,6 +336,46 @@
         <button id="time-confirm-btn">Confirm</button>
       </div>
     </div>
+<!-- Wallet Connection Overlay -->
+<div id="wallet-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; opacity: 0; z-index: 100; pointer-events: none; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(5px); justify-content: center; align-items: center;">
+  <div class="wallet-glass" style="padding: 60px 80px; text-align: center; max-width:600px; width:90%;">
+    <h1>Connect your wallet and accept these terms & conditions</h1>
+    <div style="text-align:left; margin:20px 0; max-height:200px; overflow-y:auto; background:rgba(255,255,255,0.9); padding:15px; border-radius:8px; color:#333; font-size:0.9em;">
+      <strong>Terms of Service</strong><br><br>
+      <strong>Acceptance of Terms</strong><br>
+      By accessing or using Shutter Predict ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Service.<br><br>
+      <strong>Service Provider</strong><br>
+      Shutter Predict is an interface provided by Brainbot GmbH ("Provider") that enables users to interact with a decentralized keyper set. The Provider does not control or operate the keyper set.<br><br>
+      <strong>Use of the Service</strong><br>
+      (a) The Service allows users to submit encrypted predictions on-chain and reveal them after a pre-specified time.<br>
+      (b) The Service does not offer incentives, rewards, or conditional payouts for predictions.<br>
+      (c) The Service is operated as a frontend only, with no centralized storage of user-generated content.<br><br>
+      <strong>Fees and Transactions</strong><br>
+      (a) A transaction fee may be applied when users commit predictions on-chain.<br>
+      (b) Fees are collected by the decentralized keyper set, not by the Provider.<br>
+      (c) The Provider does not act as a custodian of user funds or facilitate any monetary transactions beyond frontend access.<br><br>
+      <strong>Data Handling and Privacy</strong><br>
+      (a) The Provider does not process, store, or access prediction data beyond what is necessary for frontend functionality.<br>
+      (b) Once predictions are revealed on-chain, they become publicly visible and are beyond the Provider’s control.<br>
+      (c) The Service does not collect personal data beyond what is required for essential functionality.<br><br>
+      <strong>User Responsibilities</strong><br>
+      (a) Users must ensure that submitted predictions comply with applicable laws.<br>
+      (b) Users must not submit illegal, defamatory, or otherwise harmful content.<br>
+      (c) The Provider reserves the right to suspend access for users.<br><br>
+      <strong>Disclaimers</strong><br>
+      (a) The Service is provided "as is" without warranties of any kind.<br>
+      (b) The Provider is not liable for losses or damages arising from the use of the Service.<br>
+      (c) Users interact with the Service at their own risk.<br><br>
+      <strong>Amendments</strong><br>
+      The Provider reserves the right to modify these Terms at any time. Continued use of the Service constitutes acceptance of the revised Terms.<br><br>
+      <strong>Governing Law</strong><br>
+      These Terms are governed by the laws of Germany, without regard to conflict of law principles.<br><br>
+      For any inquiries regarding these Terms, please contact info@brainbot.com.
+    </div>
+    <button id="wallet-accept-btn">Accept and Connect Wallet</button>
+  </div>
+</div>
+
     <!-- Main Content -->
     <div id="main-content">
       <div class="container">
@@ -471,19 +511,45 @@
         }, 1000);
       });
       
-      // When the user confirms the reveal time, prefill the main content and show it
-      document.getElementById("time-confirm-btn").addEventListener("click", () => {
-        const chosenTime = document.getElementById("intro-decryptionTimestamp").value;
-        document.getElementById("decryptionTimestamp").value = chosenTime;
-        const timeOverlay = document.getElementById("time-overlay");
-        timeOverlay.style.opacity = 0;
-        setTimeout(() => {
-          timeOverlay.style.display = "none";
-          const mainContent = document.getElementById("main-content");
-          mainContent.style.display = "block";
-          setTimeout(() => mainContent.style.opacity = 1, 50);
-        }, 1000);
-      });
+// When the user confirms the reveal time, prefill the main content,
+// show the main content (with opacity 1 and blurred) and then display the wallet overlay.
+document.getElementById("time-confirm-btn").addEventListener("click", () => {
+  const chosenTime = document.getElementById("intro-decryptionTimestamp").value;
+  document.getElementById("decryptionTimestamp").value = chosenTime;
+  const timeOverlay = document.getElementById("time-overlay");
+  timeOverlay.style.opacity = 0;
+  setTimeout(() => {
+    timeOverlay.style.display = "none";
+    // Show the main content behind the wallet overlay:
+    const mainContent = document.getElementById("main-content");
+    mainContent.style.display = "block";
+    mainContent.style.opacity = "1";  // Ensure it is visible.
+    mainContent.style.filter = "blur(5px)";  // Apply the blur.
+    // Now show the wallet connection overlay.
+    const walletOverlay = document.getElementById("wallet-overlay");
+    walletOverlay.style.display = "flex";
+    walletOverlay.style.pointerEvents = "auto";
+    setTimeout(() => walletOverlay.style.opacity = 1, 50);
+  }, 1000);
+});
+
+
+
+// When the user accepts the Terms and clicks to connect,
+// call connectWallet and then remove the blur from the main content.
+document.getElementById("wallet-accept-btn").addEventListener("click", async () => {
+  await connectWallet(); // Use your existing wallet connection function.
+  const walletOverlay = document.getElementById("wallet-overlay");
+  walletOverlay.style.opacity = 0;
+  setTimeout(() => {
+    walletOverlay.style.display = "none";
+    walletOverlay.style.pointerEvents = "none";
+    // Remove the blur filter from the main content.
+    const mainContent = document.getElementById("main-content");
+    mainContent.style.filter = "";
+  }, 1000);
+});
+
       
       // Also allow the Enter key to trigger the prediction overlay
       document.getElementById("intro-prediction").addEventListener("keydown", function(e) {
