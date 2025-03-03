@@ -2,7 +2,17 @@
 
 Shutter PREDICT is a decentralized application (dApp) built on **Gnosis Chain**, enabling users to **threshold-encrypt** predictions, commit them on-chain, and reveal them when a pre-specified time has passed. The encrypted predictions are safeguarded by Shutter's keyper network, ensuring privacy and integrity until the reveal time.
 
----
+**Why Do People Hash/Encrypt Their Predictions?**
+You might have seen people tweet out hashes instead of their actual predictions. Here’s why:
+
+- Protecting Valuable Insights: Sometimes predictions hold valuable insights that could move markets or influence opinions if they were made public too early. Encrypting them keeps these insights safe until the right moment.
+- Avoiding Unwanted Influence: In scenarios like upcoming elections or other sensitive events, keeping predictions encrypted helps avoid swaying public opinion before the actual event occurs.
+
+Here’s a great blog post on this: https://www.sharvesh.com/p/interpol-red-notice-for-cobie 
+
+But here’s the issue: People **aren’t committed to this prediction**. If in the future, it turns out they’re wrong, they’ll just not reveal the secret. What if there were a way to enforce decryption and reveal? The answer is quite simple: you don’t just post the hash, you post the actual encrypted message and you use threshold-encryption powered time-lock to enforce the decryption in a decentralized manner. That’s Shutter Predict.
+
+
 
 ## **Features**
 
@@ -12,7 +22,6 @@ Shutter PREDICT is a decentralized application (dApp) built on **Gnosis Chain**,
 - **Prediction Explorer**: View and verify predictions in the Shutter Prediction Explorer.
 - **Social Sharing**: Share your predictions via a pre-filled Twitter post.
 
----
 
 ## **How It Works**
 
@@ -20,7 +29,7 @@ Shutter PREDICT is a decentralized application (dApp) built on **Gnosis Chain**,
 2. **Commit to Gnosis Chain**: Once encrypted, commit your prediction to the blockchain.
 3. **Reveal After Time**: After the reveal time passes, the Shutter keyper network decrypts your prediction, making it publicly accessible.
 
----
+
 
 ## **Technology Stack**
 
@@ -31,7 +40,7 @@ Shutter PREDICT is a decentralized application (dApp) built on **Gnosis Chain**,
   - [axios](https://axios-http.com/) for API requests
   - Custom Shutter encryption/decryption functions
 
----
+
 
 ## **Getting Started**
 
@@ -40,7 +49,7 @@ Shutter PREDICT is a decentralized application (dApp) built on **Gnosis Chain**,
 1. Install [MetaMask](https://metamask.io/) or another Ethereum-compatible wallet.
 2. Ensure you have access to the **Gnosis Chain** network and xDAI for transactions.
 
----
+
 
 ### **Running the App**
 
@@ -58,7 +67,7 @@ Shutter PREDICT is a decentralized application (dApp) built on **Gnosis Chain**,
    - **Step 2: Commit** – Submit the encrypted prediction on-chain.
    - **Step 3: Decrypt** – Retrieve and decrypt the prediction after the reveal time.
 
----
+
 
 ## **Usage**
 
@@ -71,7 +80,7 @@ After committing a prediction, you can share a pre-filled tweet with:
 - The first 10 characters of the ciphertext
 - A link to view your prediction in the explorer
 
----
+
 
 ## **Network Configuration**
 
@@ -91,7 +100,7 @@ If your wallet is not connected to **Gnosis Chain**, the app will prompt you to 
 }
 ```
 
----
+
 
 ## **Smart Contract Details**
 
@@ -100,7 +109,7 @@ If your wallet is not connected to **Gnosis Chain**, the app will prompt you to 
   - `commitPrediction(bytes _encryptedData, uint256 _revealTime, string _shutterIdentity)`
   - `revealPrediction(uint256 _id, string _plaintext)`
 
----
+
 
 ## **Development**
 
@@ -111,7 +120,7 @@ If your wallet is not connected to **Gnosis Chain**, the app will prompt you to 
 - **app.js**: Core logic for wallet connection, encryption, and transaction handling
 - **explorer.js**: Logic to display and manage predictions on the explorer page
 
----
+
 
 ## **Contributing**
 
