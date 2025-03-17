@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts/ownership/Ownable.sol";
+
 /**
  * @title PredictionContract
  * @notice Stores encrypted predictions (commitments) on-chain,
  *         then allows reveal with optional deadline constraints.
  */
-contract PredictionContract {
+contract PredictionContract is Ownable {
     struct Prediction {
         address predictor;
         bytes encryptedCommitment; // Shutter-encrypted data
@@ -16,7 +18,6 @@ contract PredictionContract {
         string shutterIdentity;    // Shutter identity associated with the prediction
     }
 
-    address public deployer;
     uint256 public commitmentFee;
     mapping(uint256 => Prediction) public predictions;
     uint256 public predictionCount;
@@ -35,7 +36,6 @@ contract PredictionContract {
     );
 
     constructor(uint256 _commitmentFee) {
-        deployer = msg.sender;
         commitmentFee = _commitmentFee;
     }
 
@@ -121,19 +121,17 @@ contract PredictionContract {
     }
 
     /**
-     * @dev Allows the deployer to withdraw collected fees.
+     * @dev Allows the owner to withdraw collected fees.
      */
-    function withdrawFees() external {
-        require(msg.sender == deployer, "Only deployer can withdraw fees");
-        payable(deployer).transfer(address(this).balance);
+    function withdrawFees() external onlyOwner {
+        payable(owner).transfer(address(this).balance);
     }
 
     /**
-     * @dev Updates the commitment fee. Can only be called by the deployer.
+     * @dev Updates the commitment fee. Can only be called by the owner.
      * @param _newFee The new commitment fee.
      */
-    function updateCommitmentFee(uint256 _newFee) external {
-        require(msg.sender == deployer, "Only deployer can update the fee");
+    function updateCommitmentFee(uint256 _newFee) external onlyOwner {
         commitmentFee = _newFee;
     }
 }
