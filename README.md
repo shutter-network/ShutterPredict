@@ -109,7 +109,16 @@ If your wallet is not connected to **Gnosis Chain**, the app will prompt you to 
   - `commitPrediction(bytes _encryptedData, uint256 _revealTime, string _shutterIdentity)`
   - `revealPrediction(uint256 _id, string _plaintext)`
 
+### **Compiling**
 
+```
+solc \
+    --output-dir=./solc_out/ \
+    --base-path=./contracts \
+    --include-path=lib \
+    --combined-json=abi,bin,bin-runtime \
+    contracts/PredictionContract.sol
+```
 
 ## **Development**
 

@@ -1,2 +1,3 @@
 config.json
 private_config.json
+./solc_out

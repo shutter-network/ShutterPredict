@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title PredictionContract
@@ -35,7 +35,7 @@ contract PredictionContract is Ownable {
         string revealedText
     );
 
-    constructor(uint256 _commitmentFee) {
+    constructor(uint256 _commitmentFee) Ownable(msg.sender) {
         commitmentFee = _commitmentFee;
     }
 
@@ -124,7 +124,7 @@ contract PredictionContract is Ownable {
      * @dev Allows the owner to withdraw collected fees.
      */
     function withdrawFees() external onlyOwner {
-        payable(owner).transfer(address(this).balance);
+        payable(msg.sender).transfer(address(this).balance);
     }
 
     /**
