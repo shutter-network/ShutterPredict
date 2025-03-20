@@ -55,7 +55,7 @@ But here’s the issue: People **aren’t committed to this prediction**. If in 
 
 1. Clone the repository.
    ```bash
-   git clone https://github.com/pepae/ShutterPredict.git
+   git clone https://github.com/shutter-network/ShutterPredict.git
    ```
    
 2. Open the `index.html` file in your web browser.
