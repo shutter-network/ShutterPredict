@@ -181,10 +181,11 @@ def tweet_prediction(prediction_id, plaintext):
     """Post a tweet about the revealed prediction using OAuth1 with ShutterPredict explorer link."""
     explorer_link = f"https://pepae.github.io/ShutterPredict/prediction_detail.html?id={prediction_id}"
     tweet_text = (
-        f"Prediction {prediction_id} has been revealed!\n\n"
-        f"Prediction: {plaintext}\n\n"
-        f"View details: {explorer_link}\n\n"
-        f"#ShutterPredict"
+        f"🔮 Predicted in the past. Unveiled now!\n\n"
+        f"{plaintext}\n\n"
+        f"Did they get it right? Submit your own, tag your friends.\n"
+        f"shutter-predict.shutter.network\n\n"
+        f"See on-chain: {explorer_link}"
     )
 
     payload = {"text": tweet_text}
@@ -198,6 +199,7 @@ def tweet_prediction(prediction_id, plaintext):
             print("Error posting tweet:", response.text)
     except requests.RequestException as e:
         print("Twitter API error:", str(e))
+
 
 
 # ======================
