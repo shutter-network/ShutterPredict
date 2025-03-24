@@ -120,6 +120,94 @@ solc \
     contracts/PredictionContract.sol
 ```
 
+
+# Twitter Bot Setup: Private Config & Execution
+
+This guide details how to set up your sensitive credentials via the private configuration file and run the Twitter bot. Note that the `public_config.json` and `contract_abi.json` files are already included in the repository.
+
+## Prerequisites
+
+Before running the bot, ensure you have:
+
+- **Python 3.x** installed.
+- The following Python libraries:
+  - `web3`
+  - `requests`
+  - `requests_oauthlib`
+  - `eth_account`
+- An Ethereum node or a public RPC endpoint (e.g., Infura) for connecting to the blockchain.
+- A **Twitter Developer account** with the necessary credentials (consumer key, consumer secret, access token, access token secret, and bearer token) for posting tweets.
+
+
+## Private Configuration
+
+The bot uses a `private_config.json` file to securely store your Twitter credentials and Ethereum private key. This file is critical for authentication and should be kept secure.
+
+### Sample private_config.json
+
+Create (or update) the file `private_config.json` in the repository root with the following structure:
+
+```json
+{
+    "private_key": "",
+    "twitter_auth": {
+        "access_token": "",
+        "access_token_secret": "",
+        "consumer_key": "",
+        "consumer_secret": "",
+        "bearer_token": ""
+    }
+}
+```
+
+### Key Points:
+
+- **private_key:**  
+  - If left empty (`""`), the bot will automatically generate a new Ethereum address and private key upon execution.
+  - Once generated, the new key will be saved back to `private_config.json`.
+
+- **twitter_auth:**  
+  - Populate these fields with your Twitter Developer credentials:
+    - `access_token`
+    - `access_token_secret`
+    - `consumer_key`
+    - `consumer_secret`
+    - `bearer_token` (if applicable, though the OAuth1 flow primarily uses the other keys).
+
+> **Security Reminder:**  
+> Keep `private_config.json` secure and avoid sharing it publicly since it contains sensitive information.
+
+
+## Running the Bot
+
+The bot script includes a main menu with several options. Here’s how to run it:
+
+1. **Ensure Repository Setup:**  
+   Verify that `public_config.json` and `contract_abi.json` are present in the repository as provided.
+
+2. **Prepare the Private Config:**  
+   - Edit `private_config.json` to add your Twitter credentials.
+   - Leave `private_key` empty if you want the bot to generate a new Ethereum key automatically.
+
+3. **Run the Bot Script:**  
+   Open a terminal in the repository directory and execute:
+
+   ```bash
+   python decrypt_bot.py
+   ```
+
+4. **Follow the Main Menu:**  
+   The script will display a menu with options like:
+   - **Run Bot:** Starts the continuous monitoring, decryption, on-chain reveal, and tweeting process.
+   - **Test Functions:** Options to test fetching predictions, tweeting, or decryption.
+   - **Generate a New Address:** Creates a new Ethereum address if needed.
+
+   Simply enter the number corresponding to your desired action and press **Enter**.
+
+5. **Monitor Output:**  
+   The bot will print logs to the console, indicating actions like key generation, prediction processing, on-chain transactions, and tweets being posted.
+
+
 ## **Development**
 
 ### **Structure**
