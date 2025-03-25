@@ -202,6 +202,8 @@ The bot script includes a main menu with several options. Here’s how to run it
    - **Test Functions:** Options to test fetching predictions, tweeting, or decryption.
    - **Generate a New Address:** Creates a new Ethereum address if needed.
 
+Fund the address with a small amount of xDAI so that the bot can decrypt on-chain.
+
    Simply enter the number corresponding to your desired action and press **Enter**.
 
 5. **Monitor Output:**  
