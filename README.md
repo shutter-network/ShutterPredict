@@ -211,7 +211,8 @@ Fund the address with a small amount of xDAI so that the bot can decrypt on-chai
 
 ### Installing the bot as a service
 
-The bot comes with a systemd unit file that can be installed as a service.
+The bot comes with a systemd unit file that can be installed as a service. The systemd unit is configured to run with [`uv`](https://docs.astral.sh/uv/getting-started/installation/) -- make sure, you have a working installation by running `uv version`.
+
 Run
 
 ```
@@ -219,6 +220,7 @@ sed 's:ExecStart.*:ExecStart='`which uv`' run '`pwd`'/decrypt_bot.py 1\nWorkingD
 systemctl --user enable decryptbot.service
 systemctl --user start decryptbot.service
 ```
+to install the bot.
 
 
 ## **Development**
