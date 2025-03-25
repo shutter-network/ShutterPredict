@@ -1,3 +1,12 @@
+#!/usr/bin/env -S uv --quiet run --script
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "eth_account",
+#     "web3",
+#     "requests_oauthlib"
+# ]
+# ///
 import time
 import json
 import requests
