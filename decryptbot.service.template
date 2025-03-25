@@ -1,0 +1,9 @@
+[Unit]
+Description=Shutter Predict Decryption Bot
+
+[Service]
+Type=exec
+ExecStart=/var/www/html/decrypt_bot.py 1
+
+[Install]
+WantedBy=multi-user.target

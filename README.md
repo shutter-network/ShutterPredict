@@ -8,7 +8,7 @@ You might have seen people tweet out hashes instead of their actual predictions.
 - Protecting Valuable Insights: Sometimes predictions hold valuable insights that could move markets or influence opinions if they were made public too early. Encrypting them keeps these insights safe until the right moment.
 - Avoiding Unwanted Influence: In scenarios like upcoming elections or other sensitive events, keeping predictions encrypted helps avoid swaying public opinion before the actual event occurs.
 
-Here’s a great blog post on this: https://www.sharvesh.com/p/interpol-red-notice-for-cobie 
+Here’s a great blog post on this: https://www.sharvesh.com/p/interpol-red-notice-for-cobie
 
 But here’s the issue: People **aren’t committed to this prediction**. If in the future, it turns out they’re wrong, they’ll just not reveal the secret. What if there were a way to enforce decryption and reveal? The answer is quite simple: you don’t just post the hash, you post the actual encrypted message and you use threshold-encryption powered time-lock to enforce the decryption in a decentralized manner. That’s Shutter Predict.
 
@@ -57,7 +57,7 @@ But here’s the issue: People **aren’t committed to this prediction**. If in 
    ```bash
    git clone https://github.com/shutter-network/ShutterPredict.git
    ```
-   
+  
 2. Open the `index.html` file in your web browser.
 
 3. Connect your wallet by clicking the **Connect Wallet** button.
@@ -162,11 +162,11 @@ Create (or update) the file `private_config.json` in the repository root with th
 
 ### Key Points:
 
-- **private_key:**  
+- **private_key:** 
   - If left empty (`""`), the bot will automatically generate a new Ethereum address and private key upon execution.
   - Once generated, the new key will be saved back to `private_config.json`.
 
-- **twitter_auth:**  
+- **twitter_auth:** 
   - Populate these fields with your Twitter Developer credentials:
     - `access_token`
     - `access_token_secret`
@@ -174,7 +174,7 @@ Create (or update) the file `private_config.json` in the repository root with th
     - `consumer_secret`
     - `bearer_token` (if applicable, though the OAuth1 flow primarily uses the other keys).
 
-> **Security Reminder:**  
+> **Security Reminder:** 
 > Keep `private_config.json` secure and avoid sharing it publicly since it contains sensitive information.
 
 
@@ -182,21 +182,21 @@ Create (or update) the file `private_config.json` in the repository root with th
 
 The bot script includes a main menu with several options. Here’s how to run it:
 
-1. **Ensure Repository Setup:**  
+1. **Ensure Repository Setup:** 
    Verify that `public_config.json` and `contract_abi.json` are present in the repository as provided.
 
-2. **Prepare the Private Config:**  
+2. **Prepare the Private Config:** 
    - Edit `private_config.json` to add your Twitter credentials.
    - Leave `private_key` empty if you want the bot to generate a new Ethereum key automatically.
 
-3. **Run the Bot Script:**  
+3. **Run the Bot Script:** 
    Open a terminal in the repository directory and execute:
 
    ```bash
    python decrypt_bot.py
    ```
 
-4. **Follow the Main Menu:**  
+4. **Follow the Main Menu:** 
    The script will display a menu with options like:
    - **Run Bot:** Starts the continuous monitoring, decryption, on-chain reveal, and tweeting process.
    - **Test Functions:** Options to test fetching predictions, tweeting, or decryption.
@@ -206,8 +206,19 @@ Fund the address with a small amount of xDAI so that the bot can decrypt on-chai
 
    Simply enter the number corresponding to your desired action and press **Enter**.
 
-5. **Monitor Output:**  
+5. **Monitor Output:** 
    The bot will print logs to the console, indicating actions like key generation, prediction processing, on-chain transactions, and tweets being posted.
+
+### Installing the bot as a service
+
+The bot comes with a systemd unit file that can be installed as a service.
+Run
+
+```
+sed 's:ExecStart.*:ExecStart='`which uv`' run '`pwd`'/decrypt_bot.py 1\nWorkingDirectory='`pwd`':' decryptbot.service.template > /etc/systemd/user/decryptbot.service
+systemctl --user enable decryptbot.service
+systemctl --user start decryptbot.service
+```
 
 
 ## **Development**
