@@ -1,6 +1,6 @@
 {
     "rpc_url": "https://rpc.gnosischain.com",
-    "contract_address": "0x440D3B55F975b4a5117D705f7BD33C55bB7580fA",
+    "contract_address": "0xcA00aC58E1541186AceB2E142d4A72C0143D59ec",
     "shutter_api_base": "https://shutter-api.shutter.network/api",
     "registry_address": "0x228DefCF37Da29475F0EE2B9E4dfAeDc3b0746bc"
 }
