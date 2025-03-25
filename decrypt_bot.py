@@ -15,9 +15,9 @@ from eth_account import Account
 from requests_oauthlib import OAuth1
 
 
-
 PUBLIC_CONFIG_FILE = "public_config.json"
 PRIVATE_CONFIG_FILE = "private_config.json"
+
 
 def load_public_config():
     try:
@@ -27,6 +27,7 @@ def load_public_config():
         print("Public configuration file not found.")
         return {}
 
+
 def load_private_config():
     try:
         with open(PRIVATE_CONFIG_FILE, "r") as f:
@@ -35,10 +36,12 @@ def load_private_config():
         print("Private configuration file not found.")
         return {}
 
+
 def save_private_config(updated_config):
     with open(PRIVATE_CONFIG_FILE, "w") as f:
         json.dump(updated_config, f, indent=4)
     print("Private configuration updated successfully.")
+
 
 # Load configurations
 public_config = load_public_config()
@@ -54,7 +57,9 @@ if not private_config.get("private_key"):
     private_config["private_key"] = new_private_key
     save_private_config(private_config)
 
-    print(f"New Ethereum address generated and saved:\nAddress: {new_address}\nPrivate Key: {new_private_key}")
+    print(
+        f"New Ethereum address generated and saved:\nAddress: {new_address}\nPrivate Key: {new_private_key}"
+    )
 
 # Set constants from public config
 RPC_URL = public_config["rpc_url"]
@@ -69,7 +74,7 @@ oauth = OAuth1(
     client_key=private_config["twitter_auth"]["consumer_key"],
     client_secret=private_config["twitter_auth"]["consumer_secret"],
     resource_owner_key=private_config["twitter_auth"]["access_token"],
-    resource_owner_secret=private_config["twitter_auth"]["access_token_secret"]
+    resource_owner_secret=private_config["twitter_auth"]["access_token_secret"],
 )
 
 
@@ -89,6 +94,7 @@ contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=CONTRACT_ABI)
 # Helper Functions
 # ======================
 
+
 def fetch_latest_prediction():
     """Retrieve the latest prediction from the smart contract."""
     prediction_count = contract.functions.predictionCount().call()
@@ -98,6 +104,7 @@ def fetch_latest_prediction():
     latest_prediction_id = prediction_count - 1
     prediction = contract.functions.getPrediction(latest_prediction_id).call()
     return latest_prediction_id, prediction
+
 
 def fetch_pending_predictions():
     """Retrieve predictions that are pending decryption and reveal."""
@@ -114,12 +121,13 @@ def fetch_pending_predictions():
 
     return pending_predictions
 
+
 def get_shutter_decryption_key(identity):
     """Retrieve decryption key from the Shutter API."""
-    response = requests.get(f"{SHUTTER_API_BASE}/get_decryption_key", params={
-        "identity": identity,
-        "registry": REGISTRY_ADDRESS
-    })
+    response = requests.get(
+        f"{SHUTTER_API_BASE}/get_decryption_key",
+        params={"identity": identity, "registry": REGISTRY_ADDRESS},
+    )
 
     if response.status_code == 200:
         message = response.json().get("message", {})
@@ -134,18 +142,21 @@ def get_shutter_decryption_key(identity):
 
     return None
 
+
 def decrypt_prediction_with_api(identity, encrypted_commitment):
     """Use the Shutter API to decrypt the commitment."""
     if isinstance(encrypted_commitment, bytes):
         encrypted_commitment = "0x" + encrypted_commitment.hex()
 
     print(f"Formatted Encrypted Commitment: {encrypted_commitment}")
-    print(f"API Request URL: {SHUTTER_API_BASE}/decrypt_commitment?identity={identity}&encryptedCommitment={encrypted_commitment}")
+    print(
+        f"API Request URL: {SHUTTER_API_BASE}/decrypt_commitment?identity={identity}&encryptedCommitment={encrypted_commitment}"
+    )
 
-    response = requests.get(f"{SHUTTER_API_BASE}/decrypt_commitment", params={
-        "identity": identity,
-        "encryptedCommitment": encrypted_commitment
-    })
+    response = requests.get(
+        f"{SHUTTER_API_BASE}/decrypt_commitment",
+        params={"identity": identity, "encryptedCommitment": encrypted_commitment},
+    )
 
     if response.status_code == 200:
         decrypted_hex = response.json().get("message")
@@ -154,7 +165,10 @@ def decrypt_prediction_with_api(identity, encrypted_commitment):
             print(f"Decrypted Text: {decrypted_text}")
             return decrypted_text
     else:
-        print(f"Error decrypting commitment (status {response.status_code}):", response.json())
+        print(
+            f"Error decrypting commitment (status {response.status_code}):",
+            response.json(),
+        )
 
     return None
 
@@ -165,12 +179,16 @@ def reveal_prediction_on_chain(prediction_id, plaintext):
     nonce = web3.eth.get_transaction_count(account.address)
 
     # Build the transaction
-    tx = contract.functions.revealPrediction(prediction_id, plaintext).build_transaction({
-        "from": account.address,
-        "nonce": nonce,
-        "gas": 300000,
-        "gasPrice": Web3.to_wei("5", "gwei"),  # Updated here
-    })
+    tx = contract.functions.revealPrediction(
+        prediction_id, plaintext
+    ).build_transaction(
+        {
+            "from": account.address,
+            "nonce": nonce,
+            "gas": 300000,
+            "gasPrice": Web3.to_wei("5", "gwei"),  # Updated here
+        }
+    )
 
     # Sign the transaction
     signed_tx = web3.eth.account.sign_transaction(tx, private_key=account.key)
@@ -183,7 +201,6 @@ def reveal_prediction_on_chain(prediction_id, plaintext):
     print(f"Transaction confirmed! Hash: {tx_hash.hex()}")
 
     return tx_hash.hex()
-
 
 
 def tweet_prediction(prediction_id, plaintext):
@@ -210,10 +227,10 @@ def tweet_prediction(prediction_id, plaintext):
         print("Twitter API error:", str(e))
 
 
-
 # ======================
 # Bot and Test Functions
 # ======================
+
 
 def run_bot():
     """Run the bot continuously to check and reveal predictions."""
@@ -235,16 +252,22 @@ def run_bot():
 
                 decryption_key = get_shutter_decryption_key(identity)
                 if not decryption_key:
-                    print(f"Skipping Prediction ID {prediction_id}: Decryption key not available.")
+                    print(
+                        f"Skipping Prediction ID {prediction_id}: Decryption key not available."
+                    )
                     continue
 
-                decrypted_text = decrypt_prediction_with_api(identity, encrypted_commitment)
+                decrypted_text = decrypt_prediction_with_api(
+                    identity, encrypted_commitment
+                )
                 if not decrypted_text:
                     print(f"Skipping Prediction ID {prediction_id}: Decryption failed.")
                     continue
 
                 tx_hash = reveal_prediction_on_chain(prediction_id, decrypted_text)
-                print(f"Prediction {prediction_id} revealed on-chain. TX Hash: {tx_hash}")
+                print(
+                    f"Prediction {prediction_id} revealed on-chain. TX Hash: {tx_hash}"
+                )
 
                 tweet_prediction(prediction_id, decrypted_text)
                 print(f"Prediction {prediction_id} tweeted successfully.")
@@ -254,6 +277,23 @@ def run_bot():
 
         print("Waiting for the next check...")
         time.sleep(10)  # Check every 10 minutes
+
+
+def test_latest_prediction():
+    """Test function to fetch and display the latest prediction."""
+    latest = fetch_latest_prediction()
+    if not latest:
+        print("No predictions available.")
+        return
+
+    prediction_id, prediction = latest
+    encrypted_commitment = prediction[1]
+    identity = prediction[5]
+
+    print(f"Test found Prediction ID: {prediction_id}")
+    print(f"Identity: {identity}")
+    print(f"Encrypted Commitment: {encrypted_commitment}")
+
 
 def test_decrypt_latest_prediction():
     """Test function to fetch, decrypt, and display the latest prediction."""
@@ -281,6 +321,7 @@ def test_decrypt_latest_prediction():
     else:
         print("Decryption failed.")
 
+
 def test_tweet_latest_prediction():
     """Test function to fetch the latest prediction and tweet it."""
     latest = fetch_latest_prediction()
@@ -289,7 +330,10 @@ def test_tweet_latest_prediction():
         return
 
     prediction_id, prediction = latest
-    tweet_prediction(prediction_id, "Test prediction: This is a sample prediction for testing.")
+    tweet_prediction(
+        prediction_id, "Test prediction: This is a sample prediction for testing."
+    )
+
 
 def generate_new_address():
     """Generate a new Ethereum address and save the private key to the config."""
@@ -305,6 +349,7 @@ def generate_new_address():
     config["private_key"] = new_private_key
     save_config(config)
     return new_address
+
 
 # ======================
 # Main Menu
