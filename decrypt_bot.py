@@ -7,6 +7,7 @@
 #     "requests_oauthlib"
 # ]
 # ///
+import sys
 import time
 import json
 import requests
@@ -362,7 +363,11 @@ if __name__ == "__main__":
     print("4. Generate a new address and save it to config")
     print("5. Test decrypt latest prediction")
 
-    choice = input("Enter your choice: ").strip()
+    choice = None
+    if len(sys.argv) > 1:
+        choice = sys.argv[1]
+    else:
+        choice = input("Enter your choice: ").strip()
 
     if choice == "1":
         run_bot()
