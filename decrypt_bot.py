@@ -206,7 +206,7 @@ def reveal_prediction_on_chain(prediction_id, plaintext):
 
 def tweet_prediction(prediction_id, plaintext):
     """Post a tweet about the revealed prediction using OAuth1 with ShutterPredict explorer link."""
-    explorer_link = f"https://pepae.github.io/ShutterPredict/prediction_detail.html?id={prediction_id}"
+    explorer_link = f"https://shutter-predict.shutter.network/prediction_detail.html?id={prediction_id}"
     tweet_text = (
         f"🔮 Predicted in the past. Unveiled now!\n\n"
         f"{plaintext}\n\n"
