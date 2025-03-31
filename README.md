@@ -209,8 +209,34 @@ Fund the address with a small amount of xDAI so that the bot can decrypt on-chai
 5. **Monitor Output:** 
    The bot will print logs to the console, indicating actions like key generation, prediction processing, on-chain transactions, and tweets being posted.
 
+### Running the bot with docker
+
+You can start the bot as a docker container:
+
+```
+docker run \
+    -d --name decryptbot \
+    -it --restart=always \
+    -v /var/www/html:/workdir:ro \
+    --workdir /workdir \
+    ghcr.io/astral-sh/uv:python3.13-alpine \
+        uv run decrypt_bot.py 1
+```
+
+The above assumes, that the checkout directory containing `decrypt_bot.py` and `private_config.json` is `/var/www/html`.
+Change the parameter to `-v` accordingly, if your installation differs.
+
+You can check the decryptbot output with
+
+```
+docker logs decryptbot
+```
+
+And restart it (if necessary) with `docker restart decryptbot`.
+
 ### Installing the bot as a service
 
+This is an alternative to the docker service from above.
 The bot comes with a systemd unit file that can be installed as a service. The systemd unit is configured to run with [`uv`](https://docs.astral.sh/uv/getting-started/installation/) -- make sure, you have a working installation by running `uv version`.
 
 Run
