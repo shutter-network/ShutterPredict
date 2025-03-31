@@ -256,7 +256,7 @@ function tweetPrediction() {
   const explorerLink = `https://shutter-predict.shutter.network/prediction_detail.html?id=${latestId}`;
   // Get the first 10 characters of the ciphertext.
   const shortCiphertext = encryptedCiphertext.substring(0, 10);
-  const tweetText = `I have committed on-chain to a prediction which is threshold encrypted until ${dateString}.\n\nHere are the first 10 characters of the ciphertext: ${shortCiphertext}\n\nHere's a link to view it: ${explorerLink}\n\nFollow @ShutterPredict to see this prediction revealed when the time comes!`;
+  const tweetText = `I have committed on-chain to a prediction which is threshold encrypted until ${dateString}.\n\nCiphertext starts with: ${shortCiphertext}…\n\nHere's a link to view it: ${explorerLink}\n\nFollow @ShutterPredict to see this prediction revealed when the time comes!`;
   const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
   window.open(tweetUrl, "_blank");
 }
