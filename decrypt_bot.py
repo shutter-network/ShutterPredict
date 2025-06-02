@@ -70,6 +70,7 @@ REGISTRY_ADDRESS = public_config["registry_address"]
 
 # Set private variables and initialize OAuth1 using private config
 PRIVATE_KEY = private_config["private_key"]
+SHUTTER_AUTH_HEADERS = {"Authorization": f"Bearer {private_config['shutter_api_key']}"}
 
 oauth = OAuth1(
     client_key=private_config["twitter_auth"]["consumer_key"],
@@ -128,6 +129,7 @@ def get_shutter_decryption_key(identity):
     response = requests.get(
         f"{SHUTTER_API_BASE}/get_decryption_key",
         params={"identity": identity, "registry": REGISTRY_ADDRESS},
+        headers=SHUTTER_AUTH_HEADERS,
     )
 
     if response.status_code == 200:
@@ -157,6 +159,7 @@ def decrypt_prediction_with_api(identity, encrypted_commitment):
     response = requests.get(
         f"{SHUTTER_API_BASE}/decrypt_commitment",
         params={"identity": identity, "encryptedCommitment": encrypted_commitment},
+        headers=SHUTTER_AUTH_HEADERS,
     )
 
     if response.status_code == 200:
