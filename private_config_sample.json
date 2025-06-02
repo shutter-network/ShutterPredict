@@ -1,5 +1,6 @@
 {
     "private_key": "YOUR_PRIVATE_KEY",
+    "shutter_api_key": "YOUR_SHUTTER_API_KEY",
     "twitter_auth": {
         "access_token": "YOUR_ACCESS_TOKEN",
         "access_token_secret": "YOUR_ACCESS_TOKEN_SECRET",
