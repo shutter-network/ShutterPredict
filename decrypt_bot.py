@@ -189,7 +189,7 @@ def reveal_prediction_on_chain(prediction_id, plaintext):
         {
             "from": account.address,
             "nonce": nonce,
-            "gas": 300000,
+            "gas": 1500000,
             "gasPrice": Web3.to_wei("5", "gwei"),  # Updated here
         }
     )
